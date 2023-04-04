@@ -23,6 +23,7 @@ packages:
     Week03
     Week04
     Week05
+    DecentralizedTix
 
 -- We never, ever, want this.
 write-ghc-environment-files: never
