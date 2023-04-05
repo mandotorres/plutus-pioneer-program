@@ -15,9 +15,6 @@ SIGNED_OUTPUT="assets/fund-tx.signed"
 SIGNING_KEY="keys/$1.skey"
 UNSIGNED_OUTPUT="assets/fund-tx.raw"
 
-# IN="e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#0"
-# SIGN="keys/$4.skey"
-
 echo -e "\nsender: $1"
 echo "utxoIn: $2"
 echo "amount in ada: $3"
@@ -34,47 +31,46 @@ echo -e "unsigned tx file: $UNSIGNED_OUTPUT\n"
 
 # gather funds into user 1 wallet
 # cardano-cli transaction build \
-# --babbage-era \
-# --tx-in $2 \
-# --tx-in $IN \
-# --tx-out $RECEIVER_ADDR+$LOVELACE \
-# --change-address $RECEIVER_ADDR \
-# $NETWORK \
-# --out-file $UNSIGNED_OUTPUT
+#   --babbage-era \
+#   --tx-in $2 \
+#   --tx-in $IN \
+#   --tx-out $RECEIVER_ADDR+$LOVELACE \
+#   --change-address $RECEIVER_ADDR \
+#   $NETWORK \
+#   --out-file $UNSIGNED_OUTPUT
 
 # transfer funds
 cardano-cli transaction build \
---babbage-era \
---tx-in $2 \
---tx-out $RECEIVER_ADDR+$LOVELACE \
---change-address $SENDER_ADDR \
-$NETWORK \
---out-file $UNSIGNED_OUTPUT
+  --babbage-era \
+  --tx-in $2 \
+  --tx-out $RECEIVER_ADDR+$LOVELACE \
+  --change-address $SENDER_ADDR \
+  $NETWORK \
+  --out-file $UNSIGNED_OUTPUT
 
-# transfer funds, keep change
+# transfer funds, reciever keeps change
 # cardano-cli transaction build \
-# --babbage-era \
-# --tx-in $2 \
-# --tx-out $RECEIVER_ADDR+$LOVELACE \
-# --change-address $RECEIVER_ADDR \
-# $NETWORK \
-# --out-file $UNSIGNED_OUTPUT
+#   --babbage-era \
+#   --tx-in $2 \
+#   --tx-out $RECEIVER_ADDR+$LOVELACE \
+#   --change-address $RECEIVER_ADDR \
+#   $NETWORK \
+#   --out-file $UNSIGNED_OUTPUT
 
 # sign both
 # cardano-cli transaction sign \
-#     --tx-body-file $UNSIGNED_OUTPUT \
-#     --signing-key-file $SIGNING_KEY \
-#     --signing-key-file $SIGN \
-#     $NETWORK \
-#     --out-file $SIGNED_OUTPUT
+#   --tx-body-file $UNSIGNED_OUTPUT \
+#   --signing-key-file $SIGNING_KEY \
+#   --signing-key-file $SIGN \
+#   $NETWORK \
+#   --out-file $SIGNED_OUTPUT
 
-# sign sender
 cardano-cli transaction sign \
-    --tx-body-file $UNSIGNED_OUTPUT \
-    --signing-key-file $SIGNING_KEY \
-    $NETWORK \
-    --out-file $SIGNED_OUTPUT
+  --tx-body-file $UNSIGNED_OUTPUT \
+  --signing-key-file $SIGNING_KEY \
+  $NETWORK \
+  --out-file $SIGNED_OUTPUT
 
- cardano-cli transaction submit \
-    $NETWORK \
-    --tx-file $SIGNED_OUTPUT
+cardano-cli transaction submit \
+  $NETWORK \
+  --tx-file $SIGNED_OUTPUT
