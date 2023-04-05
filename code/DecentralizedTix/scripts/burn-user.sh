@@ -5,34 +5,24 @@
 # $2 = token name
 # $3 = utxoIn
 # $4 = collateral
+# $5 = nftUTXO
 
-# ADA="9.677081"
-# AMOUNT_LOVELACE=$(($ADA*1000000))
-AMOUNT_LOVELACE=9677081
+ADA="2"
+AMOUNT_LOVELACE=$(($ADA*1000000))
 COLLATERAL_PKH=$(cat keys/$1.pkh)
-# INCORRECT_SIGNING_KEY="keys/user2.skey"
-MINT_SCRIPT="assets/user-mint-policy-$COLLATERAL_PKH.plutus"
 NETWORK="--testnet-magic 2"
-POLICY_ID="policy/policy-id"
-PROTOCOL_PARAMS="assets/protocol.params"
 REDEEMER="assets/unit.json"
 SENDER_ADDR=$(cat keys/$1.addr)
 SENDER_SIGNING_KEY="keys/$1.skey"
-SIGNED_OUTPUT="assets/user-burn-tx.signed"
 TOKEN_NAME=$(echo -n "$2" | xxd -ps | tr -d '\n')
-UNSIGNED_OUTPUT="assets/user-burn-tx.raw"
 
-# generate protocol params every time the script is run
-cardano-cli query protocol-parameters $NETWORK --out-file $PROTOCOL_PARAMS
-echo -e "\nprotocol params file $PROTOCOL_PARAMS created\n"
 
-if [ ! -d "policy" ]; then
-    mkdir policy
-fi
+MINT_SCRIPT="assets/nft-$5-$TOKEN_NAME.plutus"
+POLICY_ID="policy/policy-id-$5-$TOKEN_NAME"
+PROTOCOL_PARAMS="assets/protocol.params"
+SIGNED_OUTPUT="assets/user-burn-tx-$5-$TOKEN_NAME.signed"
+UNSIGNED_OUTPUT="assets/user-burn-tx-$5-$TOKEN_NAME.raw"
 
-# generate policy id every time the script is run
-cardano-cli transaction policyid --script-file $MINT_SCRIPT > $POLICY_ID
-echo -e "policy id file $POLICY_ID created\n"
 
 # echo "sender: $1"
 # echo "token name: $2"
@@ -63,26 +53,30 @@ cardano-cli transaction build \
   --required-signer-hash $COLLATERAL_PKH \
   --tx-in-collateral $4 \
   --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $POLICY_ID).$TOKEN_NAME" \
-  --change-address $SENDER_ADDR \
   --mint="-1 $(cat $POLICY_ID).$TOKEN_NAME" \
   --mint-script-file $MINT_SCRIPT \
   --mint-redeemer-file $REDEEMER \
+  --change-address $SENDER_ADDR \
   --protocol-params-file $PROTOCOL_PARAMS \
+  --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT
 
 cardano-cli transaction sign \
-    --tx-body-file $UNSIGNED_OUTPUT \
-    --signing-key-file $SENDER_SIGNING_KEY \
-    $NETWORK \
-    --out-file $SIGNED_OUTPUT
+  --tx-body-file $UNSIGNED_OUTPUT \
+  --signing-key-file $SENDER_SIGNING_KEY \
+  $NETWORK \
+  --out-file $SIGNED_OUTPUT
 
 # incorrect signing key
 # cardano-cli transaction sign \
-#     --tx-body-file $UNSIGNED_OUTPUT \
-#     --signing-key-file $INCORRECT_SIGNING_KEY \
-#     $NETWORK \
-#     --out-file $SIGNED_OUTPUT
+#   --tx-body-file $UNSIGNED_OUTPUT \
+#   --signing-key-file $INCORRECT_SIGNING_KEY \
+#   $NETWORK \
+#   --out-file $SIGNED_OUTPUT
 
- cardano-cli transaction submit \
-    $NETWORK \
-    --tx-file $SIGNED_OUTPUT
+cardano-cli transaction submit \
+  $NETWORK \
+  --tx-file $SIGNED_OUTPUT
+
+TX_ID=$(cardano-cli transaction txid --tx-file $SIGNED_OUTPUT)
+echo -e "\nTransaction txid: https://preview.cexplorer.io/tx/$TX_ID\n"

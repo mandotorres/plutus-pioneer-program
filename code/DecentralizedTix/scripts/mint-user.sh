@@ -6,20 +6,22 @@
 # $3 = utxoIn
 # $4 = collateral
 
-ADA="10"
+ADA="4"
 AMOUNT_LOVELACE=$(($ADA*1000000))
 COLLATERAL_PKH=$(cat keys/$1.pkh)
 # INCORRECT_SIGNING_KEY="keys/user2.skey"
-MINT_SCRIPT="assets/user-mint-policy-$COLLATERAL_PKH.plutus"
 NETWORK="--testnet-magic 2"
-POLICY_ID="policy/policy-id"
-PROTOCOL_PARAMS="assets/protocol.params"
 REDEEMER="assets/unit.json"
 SENDER_ADDR=$(cat keys/$1.addr)
 SENDER_SIGNING_KEY="keys/$1.skey"
-SIGNED_OUTPUT="assets/user-mint-tx.signed"
 TOKEN_NAME=$(echo -n "$2" | xxd -ps | tr -d '\n')
-UNSIGNED_OUTPUT="assets/user-mint-tx.raw"
+
+# file outputs
+MINT_SCRIPT="assets/nft-$3-$TOKEN_NAME.plutus"
+POLICY_ID="policy/policy-id-$3-$TOKEN_NAME"
+PROTOCOL_PARAMS="assets/protocol.params"
+SIGNED_OUTPUT="assets/user-mint-tx-$3-$TOKEN_NAME.signed"
+UNSIGNED_OUTPUT="assets/user-mint-tx-$3-$TOKEN_NAME.raw"
 
 # generate protocol params every time the script is run
 cardano-cli query protocol-parameters $NETWORK --out-file $PROTOCOL_PARAMS
@@ -67,13 +69,14 @@ cardano-cli transaction build \
   --mint-script-file $MINT_SCRIPT \
   --mint-redeemer-file $REDEEMER \
   --protocol-params-file $PROTOCOL_PARAMS \
+  --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT
 
 cardano-cli transaction sign \
-    --tx-body-file $UNSIGNED_OUTPUT \
-    --signing-key-file $SENDER_SIGNING_KEY \
-    $NETWORK \
-    --out-file $SIGNED_OUTPUT
+  --tx-body-file $UNSIGNED_OUTPUT \
+  --signing-key-file $SENDER_SIGNING_KEY \
+  $NETWORK \
+  --out-file $SIGNED_OUTPUT
 
 # incorrect signing key
 # cardano-cli transaction sign \
@@ -82,6 +85,9 @@ cardano-cli transaction sign \
 #     $NETWORK \
 #     --out-file $SIGNED_OUTPUT
 
- cardano-cli transaction submit \
-    $NETWORK \
-    --tx-file $SIGNED_OUTPUT
+cardano-cli transaction submit \
+  $NETWORK \
+  --tx-file $SIGNED_OUTPUT
+
+TX_ID=$(cardano-cli transaction txid --tx-file $SIGNED_OUTPUT)
+echo -e "\nTransaction txid: https://preview.cexplorer.io/tx/$TX_ID\n"
