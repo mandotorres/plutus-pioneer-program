@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # params
-# $1 = sender
+# $1 = nft to consume
 # $2 = token name
 # $3 = utxoIn
 # $4 = collateral
-# $5 = nftUTXO
+# $5 = creation utxo 
 
 ADA="2"
 AMOUNT_LOVELACE=$(($ADA*1000000))
