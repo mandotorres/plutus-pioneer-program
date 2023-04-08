@@ -6,6 +6,7 @@ code/Week03/lucid/dist/
 code/Week03/lucid-ref-script/node_modules/
 code/Week03/lucid-ref-script/dist/
 code/Week05/lecture/secret.ts
+code/DecentralizedTix/assets/*.addr
 code/DecentralizedTix/assets/*.raw
 code/DecentralizedTix/assets/*.signed
 code/DecentralizedTix/assets/*.params

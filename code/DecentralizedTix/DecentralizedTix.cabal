@@ -29,5 +29,6 @@ library
     import:             common-all
     hs-source-dirs:     src
     exposed-modules:    Main
-                        NFT
                         Signed
+                        UserNFT
+                        ThirtyFiveTyped

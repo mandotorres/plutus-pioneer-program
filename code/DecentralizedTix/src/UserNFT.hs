@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 
-module NFT where
+module UserNFT where
 
 import qualified Data.ByteString.Char8      as BS8
 import           Plutus.V1.Ledger.Value     (flattenValue)
@@ -65,7 +65,7 @@ nftPolicy oref tn = mkMintingPolicyScript $
 
 saveNFTPolicy :: TxOutRef -> TokenName -> IO ()
 saveNFTPolicy oref tn = writePolicyToFile
-    (printf "assets/nft-%s#%d-%s.plutus"
+    (printf "assets/user-nft-%s#%d-%s.plutus"
         (show $ txOutRefId oref)
         (txOutRefIdx oref)
         tn') $

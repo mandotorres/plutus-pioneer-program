@@ -1,11 +1,12 @@
 cardano-cli transaction build \
   --babbage-era \
-  --tx-in 23e7a596c829c101d9497154038f5e5319619b4b46dd3516b10d01384b0fa1f6#0 \
-  --tx-in 23e7a596c829c101d9497154038f5e5319619b4b46dd3516b10d01384b0fa1f6#1 \
-  --tx-in 7fc87dac56eb1dbf677353f3443cd3bfabb1c629ba5b2ee03136283c3d02628c#1 \
-  --tx-in aa36f882e4e9d1390c5dc22827d9a679318f7efbd3cea1d6e7bb93f5af14cdf7#0 \
-  --tx-in e9e7834d317135bc2b6bf463339cf862794d0124b79943150debe016439ff66b#1 \
-  --tx-out "addr_test1vpclg5penkqev7mrt37nspcp0cscjtxhjdm6sks8685whqsvzw2pn+1000000000" \
+  --tx-in 1e711ed633ad90dd85b56570b30c5612fe35ab5358495cf03c1abeb59656ba3e#0 \
+  --tx-in 1e711ed633ad90dd85b56570b30c5612fe35ab5358495cf03c1abeb59656ba3e#1 \
+  --tx-in 4f1d88d0530d0c22641a3860f765fe0811a8f0a79d26aaea14577a77c50443a4#0 \
+  --tx-in 4fda92b9dafdff18f506ce88fdb2e1db9e311ce0e67c5f5b50740cb09d0a8b6c#0 \
+  --tx-in 4fda92b9dafdff18f506ce88fdb2e1db9e311ce0e67c5f5b50740cb09d0a8b6c#1 \
+  --tx-in e2b6bddc386eac2cf088cdd0d11102ff71f69455cf7a9cb2ac01a1157fb44227#1 \
+  --tx-out "addr_test1vpclg5penkqev7mrt37nspcp0cscjtxhjdm6sks8685whqsvzw2pn+0" \
   --change-address addr_test1vpclg5penkqev7mrt37nspcp0cscjtxhjdm6sks8685whqsvzw2pn \
   --testnet-magic 2 \
   --out-file assets/fund-tx.raw
