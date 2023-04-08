@@ -12,6 +12,7 @@ COLLATERAL_PKH=$(cat keys/$1.pkh)
 # INCORRECT_SIGNING_KEY="keys/user2.skey"
 NETWORK="--testnet-magic 2"
 REDEEMER="assets/unit.json"
+SCRIPT_ADDR="assets/thirtyfivetyped.addr"
 SENDER_ADDR=$(cat keys/$1.addr)
 SENDER_SIGNING_KEY="keys/$1.skey"
 TOKEN_NAME=$(echo -n "$2" | xxd -ps | tr -d '\n')
@@ -57,13 +58,21 @@ echo -e "policy id file $POLICY_ID created\n"
 # echo "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $POLICY_ID).$TOKEN_NAME"
 # echo "--tx-out $SENDER_ADDR+$AMOUNT_LOVELACE+1 $(cat $POLICY_ID).$TOKEN_NAME"
 
+# Build thirtyfivetyped address 
+cardano-cli address build \
+    --payment-script-file "assets/thirtyfivetyped.plutus" \
+    $NETWORK \
+    --out-file $SCRIPT_ADDR
+
+
 cardano-cli transaction build \
   --babbage-era \
   $NETWORK \
   --tx-in $3 \
   --required-signer-hash $COLLATERAL_PKH \
   --tx-in-collateral $4 \
-  --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $POLICY_ID).$TOKEN_NAME" \
+  --tx-out "$(cat $SCRIPT_ADDR)+$AMOUNT_LOVELACE + 1 $(cat $POLICY_ID).$TOKEN_NAME" \
+  --tx-out-inline-datum-file "assets/unit.json" \
   --change-address $SENDER_ADDR \
   --mint "1 $(cat $POLICY_ID).$TOKEN_NAME" \
   --mint-script-file $MINT_SCRIPT \
