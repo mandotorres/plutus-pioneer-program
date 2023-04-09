@@ -6,9 +6,8 @@
 # $3 = utxo to consume (contains nft)
 # $4 = collateral
 # $5 = creation utxo
-# $6 = extra utxo (not used currently)
 
-ADA="2"
+ADA="5"
 AMOUNT_LOVELACE=$(($ADA*1000000))
 COLLATERAL_PKH=$(cat keys/$1.pkh)
 NETWORK="--testnet-magic 2"
@@ -19,7 +18,7 @@ TOKEN_NAME=$(echo -n "$2" | xxd -ps | tr -d '\n')
 
 
 MINT_SCRIPT="assets/user-nft-$5-$TOKEN_NAME.plutus"
-POLICY_ID="policy/policy-id-$5-$TOKEN_NAME"
+POLICY_ID="policy/user-nft-$5-$TOKEN_NAME"
 PROTOCOL_PARAMS="assets/protocol.params"
 SIGNED_OUTPUT="assets/user-burn-tx-$5-$TOKEN_NAME.signed"
 UNSIGNED_OUTPUT="assets/user-burn-tx-$5-$TOKEN_NAME.raw"
@@ -51,13 +50,13 @@ cardano-cli transaction build \
   --babbage-era \
   $NETWORK \
   --tx-in $3 \
-  --required-signer-hash $COLLATERAL_PKH \
   --tx-in-collateral $4 \
   --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $POLICY_ID).$TOKEN_NAME" \
+  --change-address $SENDER_ADDR \
+  --required-signer-hash $COLLATERAL_PKH \
   --mint="-1 $(cat $POLICY_ID).$TOKEN_NAME" \
   --mint-script-file $MINT_SCRIPT \
   --mint-redeemer-file $REDEEMER \
-  --change-address $SENDER_ADDR \
   --protocol-params-file $PROTOCOL_PARAMS \
   --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT

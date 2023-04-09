@@ -52,10 +52,10 @@ cardano-cli transaction build \
   $NETWORK \
   --tx-in $3 \
   --required-signer-hash $COLLATERAL_PKH \
+  --required-signer $SENDER_SIGNING_KEY \
   --tx-in-collateral $4 \
   --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $POLICY_ID).$TOKEN_NAME" \
   --change-address $SENDER_ADDR \
-  --required-signer $SENDER_SIGNING_KEY \
   --mint="-1 $(cat $POLICY_ID).$TOKEN_NAME" \
   --mint-script-file $MINT_SCRIPT \
   --mint-redeemer-file $REDEEMER \

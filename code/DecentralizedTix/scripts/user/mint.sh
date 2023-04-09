@@ -18,7 +18,7 @@ TOKEN_NAME=$(echo -n "$2" | xxd -ps | tr -d '\n')
 
 # file outputs
 MINT_SCRIPT="assets/user-nft-$3-$TOKEN_NAME.plutus"
-POLICY_ID="policy/policy-id-$3-$TOKEN_NAME"
+POLICY_ID="policy/user-nft-$3-$TOKEN_NAME"
 PROTOCOL_PARAMS="assets/protocol.params"
 SIGNED_OUTPUT="assets/user-mint-tx-$3-$TOKEN_NAME.signed"
 UNSIGNED_OUTPUT="assets/user-mint-tx-$3-$TOKEN_NAME.raw"
