@@ -8,8 +8,8 @@ module TicketCreatorNFT where
 import qualified Data.ByteString.Char8      as BS8
 import           Plutus.V1.Ledger.Value     (flattenValue)
 import           Plutus.V2.Ledger.Api       (BuiltinData, CurrencySymbol,
-                                             MintingPolicy,     
-                                             PubKeyHash,                                        
+                                             MintingPolicy,
+                                             PubKeyHash,
                                              ScriptContext (scriptContextTxInfo),
                                              TokenName (unTokenName),
                                              TxInInfo (txInInfoOutRef),
@@ -30,8 +30,8 @@ import           Utilities                  (bytesToHex, currencySymbol,
 
 {-# INLINABLE mkNFTPolicy #-}
 mkNFTPolicy :: PubKeyHash -> TxOutRef -> TokenName -> () -> ScriptContext -> Bool
-mkNFTPolicy pkh oref tn () ctx = (traceIfFalse "missing signature"   signedByOwner      &&
-                             traceIfFalse "UTxO not consumed"   hasUTxO                 &&
+mkNFTPolicy pkh oref tn () ctx = traceIfFalse "missing signature"   signedByOwner       &&
+                             (traceIfFalse "UTxO not consumed"   hasUTxO                &&
                              traceIfFalse "wrong amount minted" (checkMintedAmount 1))  ||
                              traceIfFalse "wrong amount burned" (checkMintedAmount (-1))
   where
@@ -45,9 +45,9 @@ mkNFTPolicy pkh oref tn () ctx = (traceIfFalse "missing signature"   signedByOwn
     checkMintedAmount c = case flattenValue (txInfoMint info) of
         [(_, tn'', amt)] -> tn'' == tn && amt == c
         _                -> False
-    
+
     signedByOwner :: Bool
-    signedByOwner = txSignedBy (scriptContextTxInfo ctx) pkh
+    signedByOwner = txSignedBy info pkh
 
 {-# INLINABLE mkWrappedNFTPolicy #-}
 mkWrappedNFTPolicy :: BuiltinData -> BuiltinData -> BuiltinData -> BuiltinData -> BuiltinData -> ()
