@@ -25,6 +25,7 @@ import           Text.Printf                (printf)
 import           Utilities                  (bytesToHex, currencySymbol,
                                              wrapPolicy, writePolicyToFile)
 
+-- TODO: Use AssetClass instead of CurrencySymbol
 {-# INLINABLE mkNFTPolicy #-}
 mkNFTPolicy :: CurrencySymbol -> TxOutRef -> TokenName -> () -> ScriptContext -> Bool
 mkNFTPolicy cs oref tn () ctx = traceIfFalse "missing ticket creator nft" hasTCnft      &&
