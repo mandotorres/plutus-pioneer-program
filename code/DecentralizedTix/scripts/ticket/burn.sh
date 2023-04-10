@@ -6,7 +6,6 @@
 # $3 = utxo to consume (contains nft)
 # $4 = collateral
 # $5 = creation utxo
-# $6 = extra utxo (not used currently)
 
 ADA="2"
 AMOUNT_LOVELACE=$(($ADA*1000000))
@@ -18,11 +17,11 @@ SENDER_SIGNING_KEY="keys/$1.skey"
 TOKEN_NAME=$(echo -n "$2" | xxd -ps | tr -d '\n')
 
 
-MINT_SCRIPT="assets/user-nft-$5-$TOKEN_NAME.plutus"
-POLICY_ID="policy/policy-id-$5-$TOKEN_NAME"
+MINT_SCRIPT="assets/ticket-nft-$5-$TOKEN_NAME.plutus"
+POLICY_ID="policy/ticket-nft-$5-$TOKEN_NAME"
 PROTOCOL_PARAMS="assets/protocol.params"
-SIGNED_OUTPUT="assets/user-burn-tx-$5-$TOKEN_NAME.signed"
-UNSIGNED_OUTPUT="assets/user-burn-tx-$5-$TOKEN_NAME.raw"
+SIGNED_OUTPUT="assets/ticket-burn-tx-$5-$TOKEN_NAME.signed"
+UNSIGNED_OUTPUT="assets/ticket-burn-tx-$5-$TOKEN_NAME.raw"
 
 
 # echo "sender: $1"
