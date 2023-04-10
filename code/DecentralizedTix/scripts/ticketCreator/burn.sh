@@ -19,7 +19,7 @@ TOKEN_NAME=$(echo -n "$2" | xxd -ps | tr -d '\n')
 
 
 MINT_SCRIPT="assets/tc-nft-$5-$TOKEN_NAME.plutus"
-POLICY_ID="policy/policy-id-$5-$TOKEN_NAME"
+POLICY_ID="policy/tc-nft-$5-$TOKEN_NAME"
 PROTOCOL_PARAMS="assets/protocol.params"
 SIGNED_OUTPUT="assets/tc-burn-tx-$5-$TOKEN_NAME.signed"
 UNSIGNED_OUTPUT="assets/tc-burn-tx-$5-$TOKEN_NAME.raw"
