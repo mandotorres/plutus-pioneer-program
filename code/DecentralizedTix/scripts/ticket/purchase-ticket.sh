@@ -3,19 +3,21 @@
 name="$1"
 collateral="$2"
 txin="$3"
-creationNFT="$4"
+pkh="$4"
+posixTime="$5"
+txin2="$6"
+slot="$7"
 
 pp="assets/protocol.params"
-body="assets/collect-thirtyfivetyped.raw"
-tx="assets/collect-thirtyfivetyped.signed"
+body="assets/collect-pv-$pkh-$posixTime.raw"
+tx="assets/collect-pv-$pkh-$posixTime.signed"
 
 ADA="5"
+PRICE=6
 AMOUNT_LOVELACE=$(($ADA*1000000))
+PRICE_LOVELACE=$(($PRICE*1000000))
 SENDER_ADDR=$(cat keys/$1.addr)
-TOKEN_NAME=$(echo -n "$5" | xxd -ps | tr -d '\n')
-POLICY_ID="policy/ticket-nft-$creationNFT-$TOKEN_NAME"
-# POLICY_ID="policy/tc-nft-$creationNFT-$TOKEN_NAME" # TODO: remove line and revert to line above
-# POLICY_ID_REQUIRED="policy/tc-nft-id-$6-$TOKEN_NAME"
+COMPANY_ADDR=$(cat keys/company.addr)
 
 # Query the protocol parameters \
 
@@ -28,12 +30,14 @@ cardano-cli transaction build \
     --babbage-era \
     --testnet-magic 2 \
     --tx-in "$txin" \
-    --tx-in "$6" \
-    --tx-in-script-file "assets/thirtyfivetyped.plutus" \
+    --tx-in "$txin2" \
+    --tx-in-script-file "assets/pv-$pkh-$posixTime.plutus" \
     --tx-in-inline-datum-present \
-    --tx-in-redeemer-file "assets/value35.json" \
+    --tx-in-redeemer-file "assets/unit.json" \
     --tx-in-collateral "$collateral" \
-    --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $POLICY_ID).$TOKEN_NAME" \
+    --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE" \
+    --tx-out "$COMPANY_ADDR+$PRICE_LOVELACE" \
+    --invalid-before $slot \
     --change-address "$(cat "keys/$name.addr")" \
     --protocol-params-file "$pp" \
     --out-file "$body"

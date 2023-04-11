@@ -6,7 +6,7 @@
 module TicketNFT where
 
 import qualified Data.ByteString.Char8      as BS8
-import           Plutus.V1.Ledger.Value     (CurrencySymbol, flattenValue, valueOf)
+import           Plutus.V1.Ledger.Value     (AssetClass (unAssetClass), CurrencySymbol, flattenValue, valueOf)
 import           Plutus.V2.Ledger.Api       (BuiltinData,
                                              MintingPolicy,
                                              ScriptContext (scriptContextTxInfo),
@@ -19,7 +19,7 @@ import           Plutus.V2.Ledger.Contexts  (txInInfoResolved, TxOut( txOutValue
 import qualified PlutusTx
 import           PlutusTx.Builtins.Internal (BuiltinByteString (BuiltinByteString))
 import           PlutusTx.Prelude           (Bool (False), Eq ((==)), any,
-                                             traceIfFalse, (.), ($), (&&), (||))
+                                             traceIfFalse, (.), ($), (&&), (||), fst, snd)
 import           Prelude                    (Integer, IO, Show (show), String)
 import           Text.Printf                (printf)
 import           Utilities                  (bytesToHex, currencySymbol,
@@ -27,11 +27,12 @@ import           Utilities                  (bytesToHex, currencySymbol,
 
 -- TODO: Use AssetClass instead of CurrencySymbol
 {-# INLINABLE mkNFTPolicy #-}
-mkNFTPolicy :: CurrencySymbol -> TxOutRef -> TokenName -> () -> ScriptContext -> Bool
-mkNFTPolicy cs oref tn () ctx = traceIfFalse "missing ticket creator nft" hasTCnft      &&
+mkNFTPolicy :: AssetClass -> TxOutRef -> TokenName -> () -> ScriptContext -> Bool
+mkNFTPolicy ac oref tn () ctx = traceIfFalse "missing ticket creator nft" hasTCnft      &&
                              (traceIfFalse "UTxO not consumed"   hasUTxO                &&
                              traceIfFalse "wrong amount minted" (checkMintedAmount 1))  ||
                              traceIfFalse "wrong amount burned" (checkMintedAmount (-1))
+
   where
     info :: TxInfo
     info = scriptContextTxInfo ctx
@@ -48,14 +49,14 @@ mkNFTPolicy cs oref tn () ctx = traceIfFalse "missing ticket creator nft" hasTCn
     hasTCnft = any (hasNft . txInInfoResolved) $ txInfoInputs info
 
     hasNft :: TxOut -> Bool
-    hasNft txOut = 1 == valueOf (txOutValue txOut) cs tn
+    hasNft txOut = 1 == valueOf (txOutValue txOut) (fst (unAssetClass ac)) (snd (unAssetClass ac))
 
 {-# INLINABLE mkWrappedNFTPolicy #-}
 mkWrappedNFTPolicy :: BuiltinData -> BuiltinData -> BuiltinData -> BuiltinData -> BuiltinData -> ()
-mkWrappedNFTPolicy cs' oref' tn' = wrapPolicy $ mkNFTPolicy cs oref tn
+mkWrappedNFTPolicy ac' oref' tn' = wrapPolicy $ mkNFTPolicy ac oref tn
   where
-    cs :: CurrencySymbol
-    cs = PlutusTx.unsafeFromBuiltinData cs'
+    ac :: AssetClass
+    ac = PlutusTx.unsafeFromBuiltinData ac'
 
     oref :: TxOutRef
     oref = PlutusTx.unsafeFromBuiltinData oref'
@@ -66,27 +67,27 @@ mkWrappedNFTPolicy cs' oref' tn' = wrapPolicy $ mkNFTPolicy cs oref tn
 nftCode :: PlutusTx.CompiledCode (BuiltinData -> BuiltinData -> BuiltinData -> BuiltinData -> BuiltinData -> ())
 nftCode = $$(PlutusTx.compile [|| mkWrappedNFTPolicy ||])
 
-nftPolicy :: CurrencySymbol -> TxOutRef -> TokenName -> MintingPolicy
-nftPolicy cs oref tn = mkMintingPolicyScript $
+nftPolicy :: AssetClass -> TxOutRef -> TokenName -> MintingPolicy
+nftPolicy ac oref tn = mkMintingPolicyScript $
     nftCode
-        `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData cs)
+        `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData ac)
         `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData oref)
         `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData tn)
 
 ---------------------------------------------------------------------------------------------------
 ------------------------------------- HELPER FUNCTIONS --------------------------------------------
 
-saveNFTPolicy :: CurrencySymbol -> TxOutRef -> TokenName -> IO ()
-saveNFTPolicy cs oref tn = writePolicyToFile
+saveNFTPolicy :: AssetClass -> TxOutRef -> TokenName -> IO ()
+saveNFTPolicy ac oref tn = writePolicyToFile
     (printf "assets/ticket-nft-%s#%d-%s.plutus"
         (show $ txOutRefId oref)
         (txOutRefIdx oref)
         tn') $
-    nftPolicy cs oref tn
+    nftPolicy ac oref tn
   where
     tn' :: String
     tn' = case unTokenName tn of
         (BuiltinByteString bs) -> BS8.unpack $ bytesToHex bs
 
-nftCurrencySymbol :: CurrencySymbol -> TxOutRef -> TokenName -> CurrencySymbol
-nftCurrencySymbol cs oref tn = currencySymbol $ nftPolicy cs oref tn
+nftCurrencySymbol :: AssetClass -> TxOutRef -> TokenName -> CurrencySymbol
+nftCurrencySymbol ac oref tn = currencySymbol $ nftPolicy ac oref tn

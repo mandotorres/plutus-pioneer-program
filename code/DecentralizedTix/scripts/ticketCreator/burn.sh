@@ -6,7 +6,6 @@
 # $3 = utxo to consume (contains nft)
 # $4 = collateral
 # $5 = creation utxo
-# $6 = extra utxo (not used currently)
 
 ADA="5"
 AMOUNT_LOVELACE=$(($ADA*1000000))
@@ -63,22 +62,22 @@ cardano-cli transaction build \
   --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT
 
-cardano-cli transaction sign \
-  --tx-body-file $UNSIGNED_OUTPUT \
-  --signing-key-file $SENDER_SIGNING_KEY \
-  $NETWORK \
-  --out-file $SIGNED_OUTPUT
-
-# incorrect signing key
 # cardano-cli transaction sign \
 #   --tx-body-file $UNSIGNED_OUTPUT \
-#   --signing-key-file $INCORRECT_SIGNING_KEY \
+#   --signing-key-file $SENDER_SIGNING_KEY \
 #   $NETWORK \
 #   --out-file $SIGNED_OUTPUT
 
-cardano-cli transaction submit \
-  $NETWORK \
-  --tx-file $SIGNED_OUTPUT
+# # incorrect signing key
+# # cardano-cli transaction sign \
+# #   --tx-body-file $UNSIGNED_OUTPUT \
+# #   --signing-key-file $INCORRECT_SIGNING_KEY \
+# #   $NETWORK \
+# #   --out-file $SIGNED_OUTPUT
 
-TX_ID=$(cardano-cli transaction txid --tx-file $SIGNED_OUTPUT)
-echo -e "\nTransaction txid: https://preview.cexplorer.io/tx/$TX_ID\n"
+# cardano-cli transaction submit \
+#   $NETWORK \
+#   --tx-file $SIGNED_OUTPUT
+
+# TX_ID=$(cardano-cli transaction txid --tx-file $SIGNED_OUTPUT)
+# echo -e "\nTransaction txid: https://preview.cexplorer.io/tx/$TX_ID\n"
