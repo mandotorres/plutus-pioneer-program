@@ -7,6 +7,7 @@ pkh="$4"
 posixTime="$5"
 txin2="$6"
 slot="$7"
+txin3="$8"
 
 pp="assets/protocol.params"
 body="assets/collect-pv-$pkh-$posixTime.raw"
@@ -18,6 +19,8 @@ AMOUNT_LOVELACE=$(($ADA*1000000))
 PRICE_LOVELACE=$(($PRICE*1000000))
 SENDER_ADDR=$(cat keys/$1.addr)
 COMPANY_ADDR=$(cat keys/company.addr)
+TOKEN_NAME=$(echo -n "$10" | xxd -ps | tr -d '\n')
+POLICY_ID="policy/user-nft-$9-55736572"
 
 # Query the protocol parameters \
 
@@ -35,10 +38,10 @@ cardano-cli transaction build \
     --tx-in-inline-datum-present \
     --tx-in-redeemer-file "assets/unit.json" \
     --tx-in-collateral "$collateral" \
-    --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE" \
+    --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $POLICY_ID).55736572" \
     --tx-out "$COMPANY_ADDR+$PRICE_LOVELACE" \
     --invalid-before $slot \
-    --change-address "$(cat "keys/$name.addr")" \
+    --change-address $SENDER_ADDR \
     --protocol-params-file "$pp" \
     --out-file "$body"
 
