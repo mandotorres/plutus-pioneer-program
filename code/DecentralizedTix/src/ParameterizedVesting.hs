@@ -35,7 +35,7 @@ makeLift ''VestingParams
 {-# INLINABLE mkParameterizedVestingValidator #-}
 mkParameterizedVestingValidator :: VestingParams -> AssetClass -> () -> () -> ScriptContext -> Bool
 mkParameterizedVestingValidator params ac () () ctx =
-    traceIfFalse "missing ticket creator nft" hasTCnft      &&
+    traceIfFalse "missing ticket creator nft" hasTCnft  &&
     traceIfFalse "price not paid"       pricePaid       &&
     traceIfFalse "deadline not reached" deadlineReached
 
