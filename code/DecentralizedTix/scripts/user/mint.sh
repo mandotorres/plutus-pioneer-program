@@ -2,9 +2,9 @@
 
 # params
 USER=$1
-UTXO_IN=$2
-TOKEN_NAME=$(echo -n "$3" | xxd -ps | tr -d '\n')
-COLLATERAL=$4
+PAYMENT_UTXO=$2
+COLLATERAL=$3
+TOKEN_NAME=$(echo -n "$4" | xxd -ps | tr -d '\n')
 
 
 ADA="2"
@@ -17,11 +17,11 @@ SENDER_SIGNING_KEY="keys/$USER.skey"
 UNIT_JSON="assets/unit.json"
 
 # file outputs
-MINT_SCRIPT="assets/user-nft-$UTXO_IN-$TOKEN_NAME.plutus"
-POLICY_ID="policy/user-nft-$UTXO_IN-$TOKEN_NAME"
+MINT_SCRIPT="assets/user-nft-$PAYMENT_UTXO-$TOKEN_NAME.plutus"
+POLICY_ID="policy/user-nft-$PAYMENT_UTXO-$TOKEN_NAME"
 PROTOCOL_PARAMS="assets/protocol.params"
-SIGNED_OUTPUT="assets/user-mint-tx-$UTXO_IN-$TOKEN_NAME.signed"
-UNSIGNED_OUTPUT="assets/user-mint-tx-$UTXO_IN-$TOKEN_NAME.raw"
+SIGNED_OUTPUT="assets/user-mint-tx-$PAYMENT_UTXO-$TOKEN_NAME.signed"
+UNSIGNED_OUTPUT="assets/user-mint-tx-$PAYMENT_UTXO-$TOKEN_NAME.raw"
 
 # generate protocol params every time the script is run
 cardano-cli query protocol-parameters $NETWORK --out-file $PROTOCOL_PARAMS
@@ -38,7 +38,7 @@ echo -e "policy id file $POLICY_ID created\n"
 cardano-cli transaction build \
   --babbage-era \
   $NETWORK \
-  --tx-in $UTXO_IN \
+  --tx-in $PAYMENT_UTXO \
   --required-signer-hash $COLLATERAL_PKH \
   --tx-in-collateral $COLLATERAL \
   --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $POLICY_ID).$TOKEN_NAME" \

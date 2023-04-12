@@ -4,9 +4,9 @@
 USER=$1
 PAYMENT_UTXO=$2
 UTXO_NFT=$3 # utxo to consume (contains nft)
-TOKEN_NAME=$(echo -n "$4" | xxd -ps | tr -d '\n')
-COLLATERAL=$5
-MINT_UTXO=$6
+COLLATERAL=$4
+MINT_UTXO=$5
+TOKEN_NAME=$(echo -n "$6" | xxd -ps | tr -d '\n')
 
 ADA="2"
 AMOUNT_LOVELACE=$(($ADA*1000000))
