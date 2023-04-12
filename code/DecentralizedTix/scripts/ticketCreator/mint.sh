@@ -1,27 +1,27 @@
 #!/bin/bash
 
 # params
-# $1 = sender
-# $2 = token name
-# $3 = utxoIn
-# $4 = collateral
+USER=$1
+PAYMENT_UTXO=$2
+COLLATERAL=$3
+TOKEN_NAME=$(echo -n "$4" | xxd -ps | tr -d '\n')
 
-ADA="10"
+
+ADA="3"
 AMOUNT_LOVELACE=$(($ADA*1000000))
-COLLATERAL_PKH=$(cat keys/$1.pkh)
+COLLATERAL_PKH=$(cat keys/$USER.pkh)
 # INCORRECT_SIGNING_KEY="keys/user2.skey"
 NETWORK="--testnet-magic 2"
-REDEEMER="assets/unit.json"
-SENDER_ADDR=$(cat keys/$1.addr)
-SENDER_SIGNING_KEY="keys/$1.skey"
-TOKEN_NAME=$(echo -n "$2" | xxd -ps | tr -d '\n')
+SENDER_ADDR=$(cat keys/$USER.addr)
+SENDER_SIGNING_KEY="keys/$USER.skey"
+UNIT_JSON="assets/unit.json"
 
 # file outputs
-MINT_SCRIPT="assets/tc-nft-$3-$TOKEN_NAME.plutus"
-POLICY_ID="policy/tc-nft-$3-$TOKEN_NAME"
+MINT_SCRIPT="assets/tc-nft-$PAYMENT_UTXO-$TOKEN_NAME.plutus"
+POLICY_ID="policy/tc-nft-$PAYMENT_UTXO-$TOKEN_NAME"
 PROTOCOL_PARAMS="assets/protocol.params"
-SIGNED_OUTPUT="assets/tc-mint-tx-$3-$TOKEN_NAME.signed"
-UNSIGNED_OUTPUT="assets/tc-mint-tx-$3-$TOKEN_NAME.raw"
+SIGNED_OUTPUT="assets/tc-mint-tx-$PAYMENT_UTXO-$TOKEN_NAME.signed"
+UNSIGNED_OUTPUT="assets/tc-mint-tx-$PAYMENT_UTXO-$TOKEN_NAME.raw"
 
 # generate protocol params every time the script is run
 cardano-cli query protocol-parameters $NETWORK --out-file $PROTOCOL_PARAMS
@@ -35,46 +35,17 @@ fi
 cardano-cli transaction policyid --script-file $MINT_SCRIPT > $POLICY_ID
 echo -e "policy id file $POLICY_ID created\n"
 
-# echo "sender: $1"
-# echo "token name: $2"
-# echo "utxoIn: $3"
-# echo -e "collateral: $4\n"
-
-# echo "ada amount: $ADA"
-# echo "lovelace amount: $AMOUNT_LOVELACE"
-# echo "collateral pkh: $COLLATERAL_PKH"
-# echo "minting script: $MINT_SCRIPT"
-# echo "network: $NETWORK"
-# echo "policy id: $POLICY_ID"
-# echo "protocol params: $PROTOCOL_PARAMS"
-# echo "redeemer: $REDEEMER"
-# echo "sender addr: $SENDER_ADDR"
-# echo "sender signing key: $SENDER_SIGNING_KEY"
-# echo "signed tx file: $SIGNED_OUTPUT"
-# echo "token name: $TOKEN_NAME"
-# echo -e "unsigned tx file: $UNSIGNED_OUTPUT\n"
-
-# echo "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $POLICY_ID).$TOKEN_NAME"
-# echo "--tx-out $SENDER_ADDR+$AMOUNT_LOVELACE+1 $(cat $POLICY_ID).$TOKEN_NAME"
-
-# # Build thirtyfivetyped address 
-# cardano-cli address build \
-#     --payment-script-file "assets/thirtyfivetyped.plutus" \
-#     $NETWORK \
-#     --out-file $SCRIPT_ADDR
-
-
 cardano-cli transaction build \
   --babbage-era \
   $NETWORK \
-  --tx-in $3 \
+  --tx-in $PAYMENT_UTXO \
   --required-signer-hash $COLLATERAL_PKH \
-  --tx-in-collateral $4 \
+  --tx-in-collateral $COLLATERAL \
   --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $POLICY_ID).$TOKEN_NAME" \
   --change-address $SENDER_ADDR \
   --mint "1 $(cat $POLICY_ID).$TOKEN_NAME" \
   --mint-script-file $MINT_SCRIPT \
-  --mint-redeemer-file $REDEEMER \
+  --mint-redeemer-file $UNIT_JSON \
   --protocol-params-file $PROTOCOL_PARAMS \
   --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT

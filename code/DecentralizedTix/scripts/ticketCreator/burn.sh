@@ -1,58 +1,38 @@
 #!/bin/bash
 
 # params
-# $1 = sender
-# $2 = token name
-# $3 = utxo to consume (contains nft)
-# $4 = collateral
-# $5 = creation utxo
+USER=$1
+PAYMENT_UTXO=$2
+UTXO_NFT=$3 # utxo to consume (contains nft)
+COLLATERAL=$4
+MINT_UTXO=$5
+TOKEN_NAME=$(echo -n "$6" | xxd -ps | tr -d '\n')
 
-ADA="5"
+
+ADA="3"
 AMOUNT_LOVELACE=$(($ADA*1000000))
-COLLATERAL_PKH=$(cat keys/$1.pkh)
+COLLATERAL_PKH=$(cat keys/$USER.pkh)
+# INCORRECT_SIGNING_KEY="keys/user2.skey"
 NETWORK="--testnet-magic 2"
 REDEEMER="assets/unit.json"
-SENDER_ADDR=$(cat keys/$1.addr)
-SENDER_SIGNING_KEY="keys/$1.skey"
-TOKEN_NAME=$(echo -n "$2" | xxd -ps | tr -d '\n')
+SENDER_ADDR=$(cat keys/$USER.addr)
+SENDER_SIGNING_KEY="keys/$USER.skey"
 
-
-MINT_SCRIPT="assets/tc-nft-$5-$TOKEN_NAME.plutus"
-POLICY_ID="policy/tc-nft-$5-$TOKEN_NAME"
+# file outputs
+MINT_SCRIPT="assets/tc-nft-$MINT_UTXO-$TOKEN_NAME.plutus"
+POLICY_ID="policy/tc-nft-$MINT_UTXO-$TOKEN_NAME"
 PROTOCOL_PARAMS="assets/protocol.params"
-SIGNED_OUTPUT="assets/tc-burn-tx-$5-$TOKEN_NAME.signed"
-UNSIGNED_OUTPUT="assets/tc-burn-tx-$5-$TOKEN_NAME.raw"
-
-
-# echo "sender: $1"
-# echo "token name: $2"
-# echo "utxoIn: $3"
-# echo -e "collateral: $4\n"
-
-# echo "ada amount: $ADA"
-# echo "lovelace amount: $AMOUNT_LOVELACE"
-# echo "collateral pkh: $COLLATERAL_PKH"
-# echo "minting script: $MINT_SCRIPT"
-# echo "network: $NETWORK"
-# echo "policy id: $POLICY_ID"
-# echo "protocol params: $PROTOCOL_PARAMS"
-# echo "redeemer: $REDEEMER"
-# echo "sender addr: $SENDER_ADDR"
-# echo "sender signing key: $SENDER_SIGNING_KEY"
-# echo "signed tx file: $SIGNED_OUTPUT"
-# echo "token name: $TOKEN_NAME"
-# echo -e "unsigned tx file: $UNSIGNED_OUTPUT\n"
-
-# echo "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $POLICY_ID).$TOKEN_NAME"
-# echo "--tx-out $SENDER_ADDR+$AMOUNT_LOVELACE+1 $(cat $POLICY_ID).$TOKEN_NAME"
+SIGNED_OUTPUT="assets/tc-burn-tx-$MINT_UTXO-$TOKEN_NAME.signed"
+UNSIGNED_OUTPUT="assets/tc-burn-tx-$MINT_UTXO-$TOKEN_NAME.raw"
 
 cardano-cli transaction build \
   --babbage-era \
   $NETWORK \
-  --tx-in $3 \
+  --tx-in $UTXO_NFT \
+  --tx-in $PAYMENT_UTXO \
   --required-signer-hash $COLLATERAL_PKH \
   --required-signer $SENDER_SIGNING_KEY \
-  --tx-in-collateral $4 \
+  --tx-in-collateral $COLLATERAL \
   --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $POLICY_ID).$TOKEN_NAME" \
   --change-address $SENDER_ADDR \
   --mint="-1 $(cat $POLICY_ID).$TOKEN_NAME" \
@@ -62,22 +42,22 @@ cardano-cli transaction build \
   --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT
 
+cardano-cli transaction sign \
+  --tx-body-file $UNSIGNED_OUTPUT \
+  --signing-key-file $SENDER_SIGNING_KEY \
+  $NETWORK \
+  --out-file $SIGNED_OUTPUT
+
+# incorrect signing key
 # cardano-cli transaction sign \
 #   --tx-body-file $UNSIGNED_OUTPUT \
-#   --signing-key-file $SENDER_SIGNING_KEY \
+#   --signing-key-file $INCORRECT_SIGNING_KEY \
 #   $NETWORK \
 #   --out-file $SIGNED_OUTPUT
 
-# # incorrect signing key
-# # cardano-cli transaction sign \
-# #   --tx-body-file $UNSIGNED_OUTPUT \
-# #   --signing-key-file $INCORRECT_SIGNING_KEY \
-# #   $NETWORK \
-# #   --out-file $SIGNED_OUTPUT
+cardano-cli transaction submit \
+  $NETWORK \
+  --tx-file $SIGNED_OUTPUT
 
-# cardano-cli transaction submit \
-#   $NETWORK \
-#   --tx-file $SIGNED_OUTPUT
-
-# TX_ID=$(cardano-cli transaction txid --tx-file $SIGNED_OUTPUT)
-# echo -e "\nTransaction txid: https://preview.cexplorer.io/tx/$TX_ID\n"
+TX_ID=$(cardano-cli transaction txid --tx-file $SIGNED_OUTPUT)
+echo -e "\nTransaction txid: https://preview.cexplorer.io/tx/$TX_ID\n"
