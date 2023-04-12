@@ -29,9 +29,7 @@ library
     import:             common-all
     hs-source-dirs:     src
     exposed-modules:    Main
-                        Signed
-                        UserNFT
-                        ThirtyFiveTyped
+                        ParameterizedVesting
                         TicketCreatorNFT
                         TicketNFT
-                        ParameterizedVesting
+                        UserNFT
