@@ -1,0 +1,63 @@
+# create user plutus file
+saveVal (VestingParams "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" 1681245690) "57c47f25af5401e50ae94e7b0ddf22c5b8f808056d6a66a77d232047"
+
+# send funds
+scripts/vesting/send-funds-to-script.sh \
+  company \
+  667e0a7850ab1f35a34b48a418e65b6bd98d32c9bf094f607b035d635b1d3306#1 \
+  a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9 \
+  1681245690
+
+# purchase ticket
+scripts/vesting/purchase-ticket.sh \
+  user2 \
+  ceb99b7e479ef3fa2590fd52007bfd59fe12b31de5130438f6a783ee24b808ff#1 \
+  b62ee3475f0f98690bbd95ccd0c74542e236ace6a0435b5a498c0a6e7e402519#0 \
+  ceb99b7e479ef3fa2590fd52007bfd59fe12b31de5130438f6a783ee24b808ff#0 \
+  e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1 \
+  14679465 \
+  a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9 \
+  1681245690 \
+  71e4722a65e980e524fbfdcb332045c5a29fa7c581552ac0344cded5e82f624c#1 \
+  "User"
+
+=======================
+
+scripts/vesting/purchase-ticket.sh \
+  user2 \
+  fa30bed95f68b655fc7f91ca09d5826e151fada1d6b4edd94b65de68a9641139#0 \
+  b62ee3475f0f98690bbd95ccd0c74542e236ace6a0435b5a498c0a6e7e402519#0 \
+  fa30bed95f68b655fc7f91ca09d5826e151fada1d6b4edd94b65de68a9641139#1 \
+  f8d4d6b984a1b348bbb198b6a25eceeded9b516fc50b676b7912c5582ba73534#0 \
+  14679465 \
+  a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9 \
+  1681245690 \
+  71e4722a65e980e524fbfdcb332045c5a29fa7c581552ac0344cded5e82f624c#1 \
+  "User"
+
+cardano-cli transaction build \
+  --babbage-era \
+  --testnet-magic 2 \
+  --tx-in b62ee3475f0f98690bbd95ccd0c74542e236ace6a0435b5a498c0a6e7e402519#0 \
+  --tx-in fa30bed95f68b655fc7f91ca09d5826e151fada1d6b4edd94b65de68a9641139#0 \
+  --tx-in fa30bed95f68b655fc7f91ca09d5826e151fada1d6b4edd94b65de68a9641139#1 \
+  --tx-in-collateral e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1 \
+  --tx-out "addr_test1vzn3scx4uze4jelfyx9yn538e3rq58h9ktvx7ltvlvz3h2gghgduf+3000000 + 1 57c47f25af5401e50ae94e7b0ddf22c5b8f808056d6a66a77d232047.55736572" \
+  --change-address addr_test1vzn3scx4uze4jelfyx9yn538e3rq58h9ktvx7ltvlvz3h2gghgduf \
+  --protocol-params-file assets/protocol.params \
+  --witness-override 2 \
+  --out-file assets/test.raw
+
+cardano-cli transaction sign \
+  --tx-body-file assets/test.raw \
+  --signing-key-file keys/company.skey \
+  --testnet-magic 2 \
+  --out-file assets/test.signed
+
+cardano-cli transaction submit \
+  --testnet-magic 2 \
+  --tx-file assets/test.signed
+
+
+
+

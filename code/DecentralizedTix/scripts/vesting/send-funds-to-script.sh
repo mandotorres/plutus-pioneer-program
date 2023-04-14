@@ -1,9 +1,9 @@
 #!/bin/bash
 
-name="$1"
-txin="$2"
-pkh="$3"
-posixTime="$4"
+USER="$1"
+PAYMENT_UTXO="$2"
+RECIPIENT_PKH="$3"
+POSIX_TIME="$4"
 
 ADA="4"
 AMOUNT_LOVELACE=$(($ADA*1000000))
@@ -11,24 +11,24 @@ assets=assets
 keypath=keys
 
 NETWORK="--testnet-magic 2"
-SENDER_SIGNING_KEY="keys/$1.skey"
-UNSIGNED_OUTPUT="$assets/pv-$pkh-$posixTime.raw"
-SIGNED_OUTPUT="$assets/pv-$pkh-$posixTime.signed"
+SENDER_SIGNING_KEY="keys/$USER.skey"
+UNSIGNED_OUTPUT="$assets/pv-$RECIPIENT_PKH-$POSIX_TIME.raw"
+SIGNED_OUTPUT="$assets/pv-$RECIPIENT_PKH-$POSIX_TIME.signed"
 
 # Build thirtyfivetyped address 
 cardano-cli address build \
-    --payment-script-file "$assets/pv-$pkh-$posixTime.plutus" \
+    --payment-script-file "$assets/pv-$RECIPIENT_PKH-$POSIX_TIME.plutus" \
     $NETWORK \
-    --out-file "$assets/pv-$pkh-$posixTime.addr"
+    --out-file "$assets/pv-$RECIPIENT_PKH-$POSIX_TIME.addr"
 
 # Build the transaction
 cardano-cli transaction build \
     --babbage-era \
     $NETWORK \
-    --tx-in "$txin" \
-    --tx-out "$(cat "$assets/pv-$pkh-$posixTime.addr") + $AMOUNT_LOVELACE" \
+    --tx-in "$PAYMENT_UTXO" \
+    --tx-out "$(cat "$assets/pv-$RECIPIENT_PKH-$POSIX_TIME.addr") + $AMOUNT_LOVELACE" \
     --tx-out-inline-datum-file "$assets/unit.json" \
-    --change-address "$(cat "$keypath/$name.addr")" \
+    --change-address "$(cat "$keypath/$USER.addr")" \
     --out-file "$UNSIGNED_OUTPUT"
     
 # Sign the transaction
