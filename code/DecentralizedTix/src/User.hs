@@ -34,7 +34,7 @@ userPolicy pkh = mkMintingPolicyScript $ userCode `PlutusTx.applyCode` PlutusTx.
 ------------------------------------- HELPER FUNCTIONS --------------------------------------------
 
 saveUserPolicy :: PubKeyHash -> IO ()
-saveUserPolicy pkh = writePolicyToFile (printf "assets/user-mint-policy-%s.plutus" $ show pkh) $ userPolicy pkh
+saveUserPolicy pkh = writePolicyToFile (printf "assets/user-%s.plutus" $ show pkh) $ userPolicy pkh
 
 userCurrencySymbol :: PubKeyHash -> CurrencySymbol
 userCurrencySymbol = currencySymbol . userPolicy
