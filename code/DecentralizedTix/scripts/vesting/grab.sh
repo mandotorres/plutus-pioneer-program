@@ -6,7 +6,7 @@ VESTED_UTXO=$3
 SLOT=$4
 
 BENEFICIARY_PKH=$(cat keys/company.pkh)
-PROTOCOL_PARAMS=assets/protocol-parameters.json
+PROTOCOL_PARAMS=assets/protocol.params
 SIGNED_OUTPUT=assets/collect-gift.signed
 UNSIGNED_OUTPUT=assets/collect-gift.raw
 

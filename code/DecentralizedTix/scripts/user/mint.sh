@@ -17,6 +17,7 @@ SENDER_ADDR=$(cat keys/$USER.addr)
 TOKEN_NAME=$(echo -n "User" | xxd -ps | tr -d '\n')
 UNIT_JSON="assets/unit.json"
 USER_SIGNING_KEY="keys/$USER.skey"
+
 # file outputs
 MINT_SCRIPT="assets/user-$COMPANY_PKH.plutus"
 POLICY_ID="policy/user-$COMPANY_PKH"
