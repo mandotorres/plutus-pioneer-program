@@ -30,6 +30,7 @@ library
     hs-source-dirs:     src
     exposed-modules:    Main
                         ParameterizedVesting
+                        PVesting
                         TicketCreatorNFT
                         TicketNFT
                         UserNFT
