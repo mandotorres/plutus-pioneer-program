@@ -6,32 +6,34 @@ PAYMENT_UTXO=$2
 NFT_UTXO=$3 # utxo to consume (contains nft)
 COLLATERAL=$4
 MINT_UTXO=$5
-TOKEN_NAME=$(echo -n "$6" | xxd -ps | tr -d '\n')
 
 
 ADA="3"
 AMOUNT_LOVELACE=$(($ADA*1000000))
-COLLATERAL_PKH=$(cat keys/$USER.pkh)
 # INCORRECT_SIGNING_KEY="keys/user2.skey"
 NETWORK="--testnet-magic 2"
 REDEEMER="assets/unit.json"
 USER_ADDR=$(cat keys/$USER.addr)
-SENDER_SIGNING_KEY="keys/$USER.skey"
+USER_PKH=$(cat keys/$USER.pkh)
+USER_SIGNING_KEY="keys/$USER.skey"
+TOKEN_NAME=$(echo -n "Ticket Creator" | xxd -ps | tr -d '\n')
+
+PARAMS_STRING="$USER_PKH-$MINT_UTXO-$TOKEN_NAME"
 
 # file outputs
-MINT_SCRIPT="assets/tc-nft-$MINT_UTXO-$TOKEN_NAME.plutus"
-POLICY_ID="policy/tc-nft-$MINT_UTXO-$TOKEN_NAME"
+MINT_SCRIPT="assets/tc-nft-$PARAMS_STRING.plutus"
+POLICY_ID="policy/tc-nft-$PARAMS_STRING"
 PROTOCOL_PARAMS="assets/protocol.params"
-SIGNED_OUTPUT="assets/tc-burn-tx-$MINT_UTXO-$TOKEN_NAME.signed"
-UNSIGNED_OUTPUT="assets/tc-burn-tx-$MINT_UTXO-$TOKEN_NAME.raw"
+SIGNED_OUTPUT="assets/tc-burn-tx-$PARAMS_STRING.signed"
+UNSIGNED_OUTPUT="assets/tc-burn-tx-$PARAMS_STRING.raw"
 
 cardano-cli transaction build \
   --babbage-era \
   $NETWORK \
   --tx-in $NFT_UTXO \
   --tx-in $PAYMENT_UTXO \
-  --required-signer-hash $COLLATERAL_PKH \
-  --required-signer $SENDER_SIGNING_KEY \
+  --required-signer-hash $USER_PKH \
+  --required-signer $USER_SIGNING_KEY \
   --tx-in-collateral $COLLATERAL \
   --tx-out "$USER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $POLICY_ID).$TOKEN_NAME" \
   --change-address $USER_ADDR \
@@ -44,7 +46,7 @@ cardano-cli transaction build \
 
 cardano-cli transaction sign \
   --tx-body-file $UNSIGNED_OUTPUT \
-  --signing-key-file $SENDER_SIGNING_KEY \
+  --signing-key-file $USER_SIGNING_KEY \
   $NETWORK \
   --out-file $SIGNED_OUTPUT
 
