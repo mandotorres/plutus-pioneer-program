@@ -4,7 +4,6 @@
 USER=$1
 PAYMENT_UTXO=$2
 COLLATERAL=$3
-TOKEN_NAME=$(echo -n "$4" | xxd -ps | tr -d '\n')
 
 
 ADA="3"
@@ -14,6 +13,7 @@ COLLATERAL_PKH=$(cat keys/$USER.pkh)
 NETWORK="--testnet-magic 2"
 SENDER_ADDR=$(cat keys/$USER.addr)
 SENDER_SIGNING_KEY="keys/$USER.skey"
+TOKEN_NAME=$(echo -n "Ticket Creator" | xxd -ps | tr -d '\n')
 UNIT_JSON="assets/unit.json"
 
 # file outputs

@@ -3,8 +3,9 @@
 # params
 USER=$1
 PAYMENT_UTXO=$2
-UTXO_TOKEN=$3 # utxo to consume (contains nft)
+NFT_UTXO=$3 # utxo to consume (contains nft)
 COLLATERAL=$4
+
 
 ADA="2"
 AMOUNT_LOVELACE=$(($ADA*1000000))
@@ -13,7 +14,7 @@ COMPANY_PKH=$(cat keys/company.pkh)
 COMPANY_SIGNING_KEY="keys/company.skey"
 # INCORRECT_SIGNING_KEY="keys/user2.skey"
 NETWORK="--testnet-magic 2"
-SENDER_ADDR=$(cat keys/$USER.addr)
+USER_ADDR=$(cat keys/$USER.addr)
 USER_SIGNING_KEY="keys/$USER.skey"
 TOKEN_NAME=$(echo -n "User" | xxd -ps | tr -d '\n')
 UNIT_JSON="assets/unit.json"
@@ -28,11 +29,11 @@ UNSIGNED_OUTPUT="assets/user-burn-tx-$COMPANY_PKH.raw"
 cardano-cli transaction build \
   --babbage-era \
   $NETWORK \
-  --tx-in $UTXO_TOKEN \
+  --tx-in $NFT_UTXO \
   --tx-in $PAYMENT_UTXO \
   --tx-in-collateral $COLLATERAL \
-  --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $POLICY_ID).$TOKEN_NAME" \
-  --change-address $SENDER_ADDR \
+  --tx-out "$USER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $POLICY_ID).$TOKEN_NAME" \
+  --change-address $USER_ADDR \
   --required-signer-hash $COLLATERAL_PKH \
   --required-signer-hash $COMPANY_PKH \
   --mint="-1 $(cat $POLICY_ID).$TOKEN_NAME" \
