@@ -39,9 +39,9 @@ cardano-cli transaction build \
     $NETWORK \
     --tx-in $PAYMENT_UTXO \
     --tx-in $TICKET_NFT_UTXO \
-    --tx-out "$(cat $SCRIPT_ADDR)+$AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME + 1 $(cat $USER_POLICY_ID).$USER_TOKEN_NAME" \
+    --tx-out "$(cat $SCRIPT_ADDR)+$AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
     --tx-out-inline-datum-file assets/unit.json \
-    --tx-out "$USER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
+    --tx-out "$USER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME + 1 $(cat $USER_POLICY_ID).$USER_TOKEN_NAME" \
     --change-address $USER_ADDR \
     --out-file $UNSIGNED_OUTPUT
 
