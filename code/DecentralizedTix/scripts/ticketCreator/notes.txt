@@ -1,10 +1,10 @@
 # create user plutus file
-saveNFTPolicy "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" (TxOutRef "0baa148a177d0acffa9be2862bc37026e26c5260e8e4f961662943cf0d8fab90" 1) "Ticket Creator"
+saveNFTPolicy "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" (TxOutRef "2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85" 0) "Ticket Creator"
 
 # mint user
 scripts/ticketCreator/mint.sh \
   company \
-  0baa148a177d0acffa9be2862bc37026e26c5260e8e4f961662943cf0d8fab90#1 \
+  2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0 \
   f8d4d6b984a1b348bbb198b6a25eceeded9b516fc50b676b7912c5582ba73534#0
 
 # burn user

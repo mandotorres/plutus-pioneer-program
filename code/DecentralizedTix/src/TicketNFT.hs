@@ -6,7 +6,7 @@
 module TicketNFT where
 
 import qualified Data.ByteString.Char8      as BS8
-import           Plutus.V1.Ledger.Value     (AssetClass, assetClassValueOf, CurrencySymbol, flattenValue)
+import           Plutus.V1.Ledger.Value     (AssetClass, assetClassValueOf, CurrencySymbol, flattenValue, unAssetClass)
 import           Plutus.V2.Ledger.Api       (BuiltinData,
                                              MintingPolicy,
                                              ScriptContext (scriptContextTxInfo),
@@ -18,7 +18,7 @@ import           Plutus.V2.Ledger.Api       (BuiltinData,
 import           Plutus.V2.Ledger.Contexts  (valueSpent)                                             
 import qualified PlutusTx
 import           PlutusTx.Builtins.Internal (BuiltinByteString (BuiltinByteString))
-import           PlutusTx.Prelude           (Bool (False), Eq ((==)), any,
+import           PlutusTx.Prelude           (any, Bool (False), Eq ((==)), fst, snd,
                                              traceIfFalse, ($), (&&), (||))
 import           Prelude                    (Integer, IO, Show (show), String)
 import           Text.Printf                (printf)
@@ -76,14 +76,16 @@ nftPolicy ac oref tn = mkMintingPolicyScript $
 
 saveNFTPolicy :: AssetClass -> TxOutRef -> TokenName -> IO ()
 saveNFTPolicy ac oref tn = writePolicyToFile
-    (printf "assets/ticket-nft-%s#%d-%s.plutus"
+    (printf "assets/ticket-nft-%s-%s-%s#%d-%s.plutus"
+        (show (fst (unAssetClass ac)))
+        (tokenName (snd (unAssetClass ac)))
         (show $ txOutRefId oref)
         (txOutRefIdx oref)
-        tn') $
+        (tokenName tn)) $
     nftPolicy ac oref tn
   where
-    tn' :: String
-    tn' = case unTokenName tn of
+    tokenName :: TokenName -> String
+    tokenName tn' = case unTokenName tn' of
         (BuiltinByteString bs) -> BS8.unpack $ bytesToHex bs
 
 nftCurrencySymbol :: AssetClass -> TxOutRef -> TokenName -> CurrencySymbol

@@ -6,7 +6,8 @@ VESTED_UTXO=$3
 USER_TOKEN_UTXO=$4
 COLLATERAL=$5
 SLOT=$6
-MINT_UTXO=$7
+TICKET_MINT_UTXO=$7
+TC_MINT_UTXO=$8
 
 BENEFICIARY=company
 BENEFICIARY_ADDR=$(cat keys/$BENEFICIARY.addr)
@@ -15,8 +16,11 @@ BENEFICIARY_SIGNING_KEY=keys/$BENEFICIARY.skey
 COST=6000000 # 6 ada
 PROTOCOL_PARAMS=assets/protocol.params
 SIGNED_OUTPUT=assets/collect-gift.signed
+
+TC_TOKEN_NAME=$(echo -n "Ticket Creator" | xxd -ps | tr -d '\n')
 TICKET_TOKEN_NAME=$(echo -n "Ticket" | xxd -ps | tr -d '\n')
-TICKET_POLICY_ID="policy/ticket-nft-$MINT_UTXO-$TICKET_TOKEN_NAME"
+TC_POLICY_ID=$(cat "policy/tc-nft-$BENEFICIARY_PKH-$TC_MINT_UTXO-$TC_TOKEN_NAME")
+TICKET_POLICY_ID="policy/ticket-nft-$TC_POLICY_ID-$TC_TOKEN_NAME-$TICKET_MINT_UTXO-$TICKET_TOKEN_NAME"
 USER_POLICY_ID="policy/user-$BENEFICIARY_PKH"
 USER_TOKEN_NAME=$(echo -n "User" | xxd -ps | tr -d '\n')
 UNSIGNED_OUTPUT=assets/collect-gift.raw
