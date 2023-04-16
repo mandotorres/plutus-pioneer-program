@@ -6,7 +6,7 @@
 module TicketNFT where
 
 import qualified Data.ByteString.Char8      as BS8
-import           Plutus.V1.Ledger.Value     (AssetClass (unAssetClass), CurrencySymbol, flattenValue, valueOf)
+import           Plutus.V1.Ledger.Value     (AssetClass, assetClassValueOf, CurrencySymbol, flattenValue)
 import           Plutus.V2.Ledger.Api       (BuiltinData,
                                              MintingPolicy,
                                              ScriptContext (scriptContextTxInfo),
@@ -15,11 +15,11 @@ import           Plutus.V2.Ledger.Api       (BuiltinData,
                                              TxInfo (txInfoInputs, txInfoMint),
                                              TxOutRef (txOutRefId, txOutRefIdx),
                                              mkMintingPolicyScript)
-import           Plutus.V2.Ledger.Contexts  (txInInfoResolved, TxOut( txOutValue))
+import           Plutus.V2.Ledger.Contexts  (valueSpent)                                             
 import qualified PlutusTx
 import           PlutusTx.Builtins.Internal (BuiltinByteString (BuiltinByteString))
 import           PlutusTx.Prelude           (Bool (False), Eq ((==)), any,
-                                             traceIfFalse, (.), ($), (&&), (||), fst, snd)
+                                             traceIfFalse, ($), (&&), (||))
 import           Prelude                    (Integer, IO, Show (show), String)
 import           Text.Printf                (printf)
 import           Utilities                  (bytesToHex, currencySymbol,
@@ -28,9 +28,9 @@ import           Utilities                  (bytesToHex, currencySymbol,
 -- TODO: Use AssetClass instead of CurrencySymbol
 {-# INLINABLE mkNFTPolicy #-}
 mkNFTPolicy :: AssetClass -> TxOutRef -> TokenName -> () -> ScriptContext -> Bool
-mkNFTPolicy ac oref tn () ctx = traceIfFalse "missing ticket creator nft" hasTCnft      &&
-                             (traceIfFalse "UTxO not consumed"   hasUTxO                &&
-                             traceIfFalse "wrong amount minted" (checkMintedAmount 1))  ||
+mkNFTPolicy ac oref tn () ctx = traceIfFalse "missing ticket creator nft" hasUserToken      &&
+                             (traceIfFalse "UTxO not consumed"   hasUTxO                    &&
+                             traceIfFalse "wrong amount minted" (checkMintedAmount 1))      ||
                              traceIfFalse "wrong amount burned" (checkMintedAmount (-1))
 
   where
@@ -45,11 +45,8 @@ mkNFTPolicy ac oref tn () ctx = traceIfFalse "missing ticket creator nft" hasTCn
         [(_, tn'', amt)] -> tn'' == tn && amt == c
         _                -> False
 
-    hasTCnft :: Bool
-    hasTCnft = any (hasNft . txInInfoResolved) $ txInfoInputs info
-
-    hasNft :: TxOut -> Bool
-    hasNft txOut = 1 == valueOf (txOutValue txOut) (fst (unAssetClass ac)) (snd (unAssetClass ac))
+    hasUserToken :: Bool
+    hasUserToken = 1 == assetClassValueOf (valueSpent info) ac
 
 {-# INLINABLE mkWrappedNFTPolicy #-}
 mkWrappedNFTPolicy :: BuiltinData -> BuiltinData -> BuiltinData -> BuiltinData -> BuiltinData -> ()
