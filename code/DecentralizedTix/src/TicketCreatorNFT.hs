@@ -77,7 +77,8 @@ nftPolicy pkh oref tn = mkMintingPolicyScript $
 
 saveNFTPolicy :: PubKeyHash -> TxOutRef -> TokenName -> IO ()
 saveNFTPolicy pkh oref tn = writePolicyToFile
-    (printf "assets/tc-nft-%s#%d-%s.plutus"
+    (printf "assets/tc-nft-%s-%s#%d-%s.plutus"
+        (show pkh)
         (show $ txOutRefId oref)
         (txOutRefIdx oref)
         tn') $
