@@ -1,30 +1,34 @@
 #!/bin/bash
 
 # params
-# $1 = sender
-# $2 = token name
-# $3 = utxoIn
-# $4 = collateral
+USER=$1
+PAYMENT_UTXO=$2
+COLLATERAL=$3
+TC_NFT_UTXO=$4
+TC_MINT_UTXO=$5
+
 
 ADA="2"
 AMOUNT_LOVELACE=$(($ADA*1000000))
-COLLATERAL_PKH=$(cat keys/$1.pkh)
+COLLATERAL_PKH=$(cat keys/$USER.pkh)
 # INCORRECT_SIGNING_KEY="keys/user2.skey"
 NETWORK="--testnet-magic 2"
-REDEEMER="assets/unit.json"
-SCRIPT_ADDR="assets/thirtyfivetyped.addr"
-SENDER_ADDR=$(cat keys/$1.addr)
-SENDER_SIGNING_KEY="keys/$1.skey"
-TICKET_TOKEN_NAME=$(echo -n "$2" | xxd -ps | tr -d '\n')
-TC_TOKEN_NAME=$(echo -n "$5" | xxd -ps | tr -d '\n')
+SCRIPT_ADDR="assets/gift.addr"
+SENDER_ADDR=$(cat keys/$USER.addr)
+SENDER_SIGNING_KEY="keys/$USER.skey"
+TC_TOKEN_NAME=$(echo -n "Ticket Creator" | xxd -ps | tr -d '\n')
+TICKET_TOKEN_NAME=$(echo -n "Ticket" | xxd -ps | tr -d '\n')
+UNIT_JSON="assets/unit.json"
 
 # file outputs
-MINT_SCRIPT="assets/ticket-nft-$3-$TICKET_TOKEN_NAME.plutus"
-TICKET_POLICY_ID="policy/ticket-nft-$3-$TICKET_TOKEN_NAME"
-TC_POLICY_ID="policy/tc-nft-$6-$TC_TOKEN_NAME"
+MINT_SCRIPT="assets/ticket-nft-$PAYMENT_UTXO-$TICKET_TOKEN_NAME.plutus"
+TICKET_POLICY_ID="policy/ticket-nft-$PAYMENT_UTXO-$TICKET_TOKEN_NAME"
+TC_POLICY_ID="policy/tc-nft-$TC_MINT_UTXO-$TC_TOKEN_NAME"
 PROTOCOL_PARAMS="assets/protocol.params"
-SIGNED_OUTPUT="assets/ticket-mint-tx-$3-$TICKET_TOKEN_NAME.signed"
-UNSIGNED_OUTPUT="assets/ticket-mint-tx-$3-$TICKET_TOKEN_NAME.raw"
+SIGNED_OUTPUT="assets/ticket-mint-tx-$PAYMENT_UTXO-$TICKET_TOKEN_NAME.signed"
+UNSIGNED_OUTPUT="assets/ticket-mint-tx-$PAYMENT_UTXO-$TICKET_TOKEN_NAME.raw"
+
+# echo "mint script: $MINT_SCRIPT"
 
 # generate protocol params every time the script is run
 cardano-cli query protocol-parameters $NETWORK --out-file $PROTOCOL_PARAMS
@@ -38,46 +42,33 @@ fi
 cardano-cli transaction policyid --script-file $MINT_SCRIPT > $TICKET_POLICY_ID
 echo -e "policy id file $TICKET_POLICY_ID created\n"
 
-# echo "sender: $1"
-# echo "token name: $2"
-# echo "utxoIn: $3"
-# echo -e "collateral: $4\n"
-
-# echo "ada amount: $ADA"
-# echo "lovelace amount: $AMOUNT_LOVELACE"
-# echo "collateral pkh: $COLLATERAL_PKH"
-# echo "minting script: $MINT_SCRIPT"
-# echo "network: $NETWORK"
-# echo "policy id: $TICKET_POLICY_ID"
-# echo "protocol params: $PROTOCOL_PARAMS"
-# echo "redeemer: $REDEEMER"
-# echo "sender addr: $SENDER_ADDR"
-# echo "sender signing key: $SENDER_SIGNING_KEY"
-# echo "signed tx file: $SIGNED_OUTPUT"
-# echo "token name: $TICKET_TOKEN_NAME"
-# echo -e "unsigned tx file: $UNSIGNED_OUTPUT\n"
-
-# echo "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME"
-# echo "--tx-out $SENDER_ADDR+$AMOUNT_LOVELACE+1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME"
-
-# --tx-in "8bad8b001474817b3dffd7cdf6022dcc4b0fa34d62412a9cb802f136f4a83a95#1" \
 cardano-cli transaction build \
   --babbage-era \
   $NETWORK \
-  --tx-in $3 \
-  --tx-in $7 \
+  --tx-in $PAYMENT_UTXO \
+  --tx-in $TC_NFT_UTXO \
   --required-signer-hash $COLLATERAL_PKH \
-  --tx-in-collateral $4 \
+  --tx-in-collateral $COLLATERAL \
   --tx-out "$(cat $SCRIPT_ADDR)+$AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
   --tx-out-inline-datum-file "assets/unit.json" \
   --tx-out "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $TC_POLICY_ID).$TC_TOKEN_NAME" \
   --change-address $SENDER_ADDR \
   --mint "1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
   --mint-script-file $MINT_SCRIPT \
-  --mint-redeemer-file $REDEEMER \
+  --mint-redeemer-file $UNIT_JSON \
   --protocol-params-file $PROTOCOL_PARAMS \
   --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT
+
+
+# echo "ticket policy id: $TICKET_POLICY_ID"
+# echo "ticket policy id contents: $(cat $TICKET_POLICY_ID)"
+
+# BEFORE CHANGE_ADDRESS
+  
+
+# echo "$(cat $SCRIPT_ADDR)+$AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME"
+# echo "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $TC_POLICY_ID).$TC_TOKEN_NAME"
 
 cardano-cli transaction sign \
   --tx-body-file $UNSIGNED_OUTPUT \
