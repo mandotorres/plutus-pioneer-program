@@ -23,7 +23,6 @@ UNSIGNED_OUTPUT=assets/collect-gift.raw
 USER_ADDRESS=$(cat keys/$USER.addr)
 
 # Query the protocol parameters \
-
 cardano-cli query protocol-parameters \
     --testnet-magic 2 \
     --out-file $PROTOCOL_PARAMS

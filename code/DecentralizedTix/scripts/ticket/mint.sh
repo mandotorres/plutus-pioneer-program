@@ -60,16 +60,6 @@ cardano-cli transaction build \
   --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT
 
-
-# echo "ticket policy id: $TICKET_POLICY_ID"
-# echo "ticket policy id contents: $(cat $TICKET_POLICY_ID)"
-
-# BEFORE CHANGE_ADDRESS
-  
-
-# echo "$(cat $SCRIPT_ADDR)+$AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME"
-# echo "$SENDER_ADDR+$AMOUNT_LOVELACE + 1 $(cat $TC_POLICY_ID).$TC_TOKEN_NAME"
-
 cardano-cli transaction sign \
   --tx-body-file $UNSIGNED_OUTPUT \
   --signing-key-file $SENDER_SIGNING_KEY \
