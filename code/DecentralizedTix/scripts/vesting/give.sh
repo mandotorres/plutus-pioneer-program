@@ -31,33 +31,32 @@ SCRIPT_ADDR="assets/gift-$SCRIPT_PARAMS_STRING.addr"
 
 # Build gift address 
 cardano-cli address build \
-    --payment-script-file assets/parameterized-vesting-$SCRIPT_PARAMS_STRING.plutus \
-    --testnet-magic 2 \
-    --out-file $SCRIPT_ADDR
+  --payment-script-file assets/parameterized-vesting-$SCRIPT_PARAMS_STRING.plutus \
+  --testnet-magic 2 \
+  --out-file $SCRIPT_ADDR
 
 # Build the transaction
 cardano-cli transaction build \
-    --babbage-era \
-    $NETWORK \
-    --tx-in $PAYMENT_UTXO \
-    --tx-in $TICKET_NFT_UTXO \
-    --tx-out "$(cat $SCRIPT_ADDR)+$AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
-    --tx-out-inline-datum-file assets/unit.json \
-    --tx-out "$USER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME + 1 $USER_POLICY_ID.$USER_TOKEN_NAME" \
-    --change-address $USER_ADDR \
-    --out-file $UNSIGNED_OUTPUT
+  --babbage-era \
+  $NETWORK \
+  --tx-in $PAYMENT_UTXO \
+  --tx-in $TICKET_NFT_UTXO \
+  --tx-out "$(cat $SCRIPT_ADDR)+$AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
+  --tx-out-inline-datum-file assets/unit.json \
+  --change-address $USER_ADDR \
+  --out-file $UNSIGNED_OUTPUT
 
 # Sign the transaction
 cardano-cli transaction sign \
-    --tx-body-file $UNSIGNED_OUTPUT \
-    --signing-key-file $USER_SIGNING_KEY \
+  --tx-body-file $UNSIGNED_OUTPUT \
+  --signing-key-file $USER_SIGNING_KEY \
   $NETWORK \
   --out-file $SIGNED_OUTPUT
 
 # Submit the transaction
 cardano-cli transaction submit \
-    $NETWORK \
-    --tx-file $SIGNED_OUTPUT
+  $NETWORK \
+  --tx-file $SIGNED_OUTPUT
 
 tid=$(cardano-cli transaction txid --tx-file $SIGNED_OUTPUT)
 echo "transaction id: $tid"
