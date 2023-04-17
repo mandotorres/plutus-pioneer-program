@@ -5,11 +5,11 @@ PAYMENT_UTXO=$2
 TICKET_NFT_UTXO=$3
 TC_NFT_UTXO=$4
 TC_MINT_UTXO=$5
+DEADLINE=$6
 
 
 ADA="2"
 AMOUNT_LOVELACE=$(($ADA*1000000))
-SCRIPT_ADDR="assets/gift.addr"
 TC_TOKEN_NAME=$(echo -n "Ticket Creator" | xxd -ps | tr -d '\n')
 TICKET_TOKEN_NAME=$(echo -n "Ticket" | xxd -ps | tr -d '\n')
 USER_ADDR=$(cat keys/$USER.addr)
@@ -23,15 +23,17 @@ NETWORK="--testnet-magic 2"
 TICKET_POLICY_ID="policy/ticket-nft-$PARAMS_STRING"
 UNSIGNED_OUTPUT="assets/pv-$PARAMS_STRING.raw"
 SIGNED_OUTPUT="assets/pv-$PARAMS_STRING.signed"
-USER_POLICY_ID="policy/user-$COMPANY_PKH"
+USER_POLICY_ID=$(cat "policy/user-$COMPANY_PKH")
 USER_TOKEN_NAME=$(echo -n "User" | xxd -ps | tr -d '\n')
+
+SCRIPT_PARAMS_STRING="$USER_POLICY_ID-$USER_TOKEN_NAME-$COMPANY_PKH-$DEADLINE"
+SCRIPT_ADDR="assets/gift-$SCRIPT_PARAMS_STRING.addr"
 
 # Build gift address 
 cardano-cli address build \
-    --payment-script-file assets/parameterized-vesting.plutus \
+    --payment-script-file assets/parameterized-vesting-$SCRIPT_PARAMS_STRING.plutus \
     --testnet-magic 2 \
     --out-file $SCRIPT_ADDR
-
 
 # Build the transaction
 cardano-cli transaction build \
@@ -41,7 +43,7 @@ cardano-cli transaction build \
     --tx-in $TICKET_NFT_UTXO \
     --tx-out "$(cat $SCRIPT_ADDR)+$AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
     --tx-out-inline-datum-file assets/unit.json \
-    --tx-out "$USER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME + 1 $(cat $USER_POLICY_ID).$USER_TOKEN_NAME" \
+    --tx-out "$USER_ADDR+$AMOUNT_LOVELACE + 0 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME + 1 $USER_POLICY_ID.$USER_TOKEN_NAME" \
     --change-address $USER_ADDR \
     --out-file $UNSIGNED_OUTPUT
 

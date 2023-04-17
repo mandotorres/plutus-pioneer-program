@@ -6,13 +6,14 @@ PAYMENT_UTXO=$2
 COLLATERAL=$3
 TC_NFT_UTXO=$4
 TC_MINT_UTXO=$5
+DEADLINE=$6
 
 
 ADA="2"
 AMOUNT_LOVELACE=$(($ADA*1000000))
+COMPANY_PKH=$(cat keys/company.pkh)
 # INCORRECT_SIGNING_KEY="keys/user2.skey"
 NETWORK="--testnet-magic 2"
-SCRIPT_ADDR="assets/gift.addr"
 USER_ADDR=$(cat keys/$USER.addr)
 USER_PKH=$(cat keys/$USER.pkh)
 USER_SIGNING_KEY="keys/$USER.skey"
@@ -21,13 +22,17 @@ TICKET_TOKEN_NAME=$(echo -n "Ticket" | xxd -ps | tr -d '\n')
 UNIT_JSON="assets/unit.json"
 
 # file outputs
-TC_POLICY_ID=$(cat "policy/tc-nft-$USER_PKH-$TC_MINT_UTXO-$TC_TOKEN_NAME")
+TC_POLICY_ID=$(cat "policy/tc-nft-$COMPANY_PKH-$TC_MINT_UTXO-$TC_TOKEN_NAME")
 PARAMS_STRING="$TC_POLICY_ID-$TC_TOKEN_NAME-$PAYMENT_UTXO-$TICKET_TOKEN_NAME"
 MINT_SCRIPT="assets/ticket-nft-$PARAMS_STRING.plutus"
 TICKET_POLICY_ID="policy/ticket-nft-$PARAMS_STRING"
 PROTOCOL_PARAMS="assets/protocol.params"
 SIGNED_OUTPUT="assets/ticket-mint-tx-$PARAMS_STRING.signed"
 UNSIGNED_OUTPUT="assets/ticket-mint-tx-$PARAMS_STRING.raw"
+USER_TOKEN_NAME=$(echo -n "User" | xxd -ps | tr -d '\n')
+
+SCRIPT_PARAMS_STRING="$USER_POLICY_ID-$USER_TOKEN_NAME-$COMPANY_PKH-$DEADLINE"
+SCRIPT_ADDR="assets/gift.addr"
 
 # generate protocol params every time the script is run
 cardano-cli query protocol-parameters $NETWORK --out-file $PROTOCOL_PARAMS
