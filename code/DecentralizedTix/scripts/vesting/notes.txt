@@ -4,9 +4,9 @@ saveVal (assetClass "170e169de9dc68629af74abdec8cb391377ff7a8034ff23ac5f6793d" "
 # grab funds
 scripts/vesting/grab.sh \
   user2 \
-  c1beb6b762f3e86d4f77f6fe1a1a290e37fa0def5719197b7458b6025b5e8fac#1 \
-  6850feba5d270d19016ec3478ab9fb615fb9ac8bebd3e15e0a6f8f9f4603fcb2#0 \
-  c1beb6b762f3e86d4f77f6fe1a1a290e37fa0def5719197b7458b6025b5e8fac#0 \
+  eeafcf73fedc680df20f3e896ae48b380539d7da297e52f0eb8c9f3beca4ee73#1 \
+  eeafcf73fedc680df20f3e896ae48b380539d7da297e52f0eb8c9f3beca4ee73#0 \
+  b1059558a3afacd1befc22dd8ab855d4b974fdccab916f07cd375a7147877642#1 \
   e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1 \
   14679465 \
   dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2#0 \
@@ -14,11 +14,11 @@ scripts/vesting/grab.sh \
   1681245690
 
 # send fund to script
-scripts/vesting/send-fund-to-script.sh \
+scripts/vesting/give.sh \
   user2 \
-  d3c42b66c548d516b35c887e22ab2d4272bbfb2d0ea86f7ae85835455e0b6bfc#2 \
-  d3c42b66c548d516b35c887e22ab2d4272bbfb2d0ea86f7ae85835455e0b6bfc#1 \
-  c175e76b6f15b0c2e2df10d420ebb1a326bc324638b2f8ef01c381284cb44dff#0 \
+  b1059558a3afacd1befc22dd8ab855d4b974fdccab916f07cd375a7147877642#3 \
+  b1059558a3afacd1befc22dd8ab855d4b974fdccab916f07cd375a7147877642#2 \
+  dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2#0 \
   2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0 \
   1681245690
   
