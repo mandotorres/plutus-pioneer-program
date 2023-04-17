@@ -29,7 +29,7 @@ library
     import:             common-all
     hs-source-dirs:     src
     exposed-modules:    Main
-                        PVesting
+                        ParameterizedVesting
                         TicketCreatorNFT
                         TicketNFT
                         User
