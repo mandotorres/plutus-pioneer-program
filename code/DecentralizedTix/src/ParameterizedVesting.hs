@@ -5,20 +5,24 @@
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TemplateHaskell       #-}
 
-module PVesting where
+module ParameterizedVesting where
 
-import           Plutus.V1.Ledger.Interval (contains)
-import           Plutus.V1.Ledger.Value    (AssetClass, assetClass, assetClassValueOf)
-import           Plutus.V2.Ledger.Api      (adaSymbol, adaToken, BuiltinData, POSIXTime, PubKeyHash,
-                                            ScriptContext (scriptContextTxInfo),
-                                            TxInfo (txInfoValidRange),
-                                            Validator, from, mkValidatorScript)
-import           Plutus.V2.Ledger.Contexts (valuePaidTo, valueSpent)
-import           PlutusTx                  (applyCode, compile, liftCode,
-                                            makeLift)
-import           PlutusTx.Prelude          (Bool, traceIfFalse, ($), (&&), (==), (<=))
-import           Prelude                   (IO)
-import           Utilities                 (wrapValidator, writeValidatorToFile)
+import qualified Data.ByteString.Char8      as BS8
+import           Plutus.V1.Ledger.Interval  (contains)
+import           Plutus.V1.Ledger.Value     (AssetClass, assetClass, assetClassValueOf, unAssetClass)
+import           Plutus.V2.Ledger.Api       (adaSymbol, adaToken, BuiltinData, POSIXTime (getPOSIXTime), PubKeyHash,
+                                             ScriptContext (scriptContextTxInfo),
+                                             TokenName(unTokenName),
+                                             TxInfo (txInfoValidRange),
+                                             Validator, from, mkValidatorScript)
+import           Plutus.V2.Ledger.Contexts  (valuePaidTo, valueSpent)
+import           PlutusTx                   (applyCode, compile, liftCode,
+                                             makeLift)
+import           PlutusTx.Builtins.Internal (BuiltinByteString (BuiltinByteString))
+import           PlutusTx.Prelude           (Bool, fst, snd, traceIfFalse, ($), (&&), (==), (<=))
+import           Prelude                    (IO, Show (show), String)
+import           Text.Printf                (printf)
+import           Utilities                  (bytesToHex, wrapValidator, writeValidatorToFile)
 
 ---------------------------------------------------------------------------------------------------
 ----------------------------------- ON-CHAIN / VALIDATOR ------------------------------------------
@@ -63,4 +67,15 @@ validator ac params = mkValidatorScript ($$(compile [|| mkWrappedParameterizedVe
 ------------------------------------- HELPER FUNCTIONS --------------------------------------------
 
 saveVal :: AssetClass -> VestingParams -> IO ()
-saveVal ac params = writeValidatorToFile "./assets/parameterized-vesting.plutus" $ validator ac params
+saveVal ac params = writeValidatorToFile
+    (printf "./assets/parameterized-vesting-%s-%s-%s-%s.plutus"
+      (show (fst (unAssetClass ac)))
+      tokenName
+      (show $ beneficiary params)
+      (show $ getPOSIXTime (deadline params))
+    ) $ 
+    validator ac params
+  where
+    tokenName :: String
+    tokenName = case unTokenName (snd (unAssetClass ac)) of
+        (BuiltinByteString bs) -> BS8.unpack $ bytesToHex bs
