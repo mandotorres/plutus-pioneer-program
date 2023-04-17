@@ -29,10 +29,11 @@ TICKET_POLICY_ID="policy/ticket-nft-$PARAMS_STRING"
 PROTOCOL_PARAMS="assets/protocol.params"
 SIGNED_OUTPUT="assets/ticket-mint-tx-$PARAMS_STRING.signed"
 UNSIGNED_OUTPUT="assets/ticket-mint-tx-$PARAMS_STRING.raw"
+USER_POLICY_ID=$(cat "policy/user-$COMPANY_PKH")
 USER_TOKEN_NAME=$(echo -n "User" | xxd -ps | tr -d '\n')
 
 SCRIPT_PARAMS_STRING="$USER_POLICY_ID-$USER_TOKEN_NAME-$COMPANY_PKH-$DEADLINE"
-SCRIPT_ADDR="assets/gift.addr"
+SCRIPT_ADDR="assets/gift-$SCRIPT_PARAMS_STRING.addr"
 
 # generate protocol params every time the script is run
 cardano-cli query protocol-parameters $NETWORK --out-file $PROTOCOL_PARAMS

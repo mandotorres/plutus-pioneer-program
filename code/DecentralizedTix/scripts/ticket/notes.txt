@@ -1,13 +1,14 @@
 # create ticket plutus file
-saveNFTPolicy (assetClass "47bfc748891f37b9d47cdbb8ff0ddf73df70f4a5ea22417a19ddc46a" "Ticket Creator") (TxOutRef "c175e76b6f15b0c2e2df10d420ebb1a326bc324638b2f8ef01c381284cb44dff" 0) "Ticket"
+saveNFTPolicy (assetClass "47bfc748891f37b9d47cdbb8ff0ddf73df70f4a5ea22417a19ddc46a" "Ticket Creator") (TxOutRef "dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2" 0) "Ticket"
 
 # mint ticket
 scripts/ticket/mint.sh \
   company \
-  c175e76b6f15b0c2e2df10d420ebb1a326bc324638b2f8ef01c381284cb44dff#0 \
+  dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2#0 \
   f8d4d6b984a1b348bbb198b6a25eceeded9b516fc50b676b7912c5582ba73534#0 \
-  e315906ec4896a8ff808b20d9d74e61aa8cd50d5f11cb1b36ba72c81a5330c1c#0 \
-  2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0
+  c617dc89b02c07eb5fe8c76405094ed98dbea9969938fe7085992fcb0a025108#1 \
+  2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0 \
+  1681245690
 
 # burn ticket
 scripts/ticket/burn.sh \
@@ -15,4 +16,5 @@ scripts/ticket/burn.sh \
   10dc49f05c02027d346ee7e00c35888f1d89b8d9632a39f6d5ab896576576e0b#2 \
   10dc49f05c02027d346ee7e00c35888f1d89b8d9632a39f6d5ab896576576e0b#1 \
   e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1 \
+  c175e76b6f15b0c2e2df10d420ebb1a326bc324638b2f8ef01c381284cb44dff#0 \
   2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0

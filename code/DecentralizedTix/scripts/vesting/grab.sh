@@ -10,6 +10,8 @@ TICKET_MINT_UTXO=$7
 TC_MINT_UTXO=$8
 DEADLINE=$9
 
+ADA="2"
+AMOUNT_LOVELACE=$(($ADA*1000000))
 BENEFICIARY=company
 BENEFICIARY_ADDR=$(cat keys/$BENEFICIARY.addr)
 BENEFICIARY_PKH=$(cat keys/$BENEFICIARY.pkh)
@@ -45,12 +47,13 @@ cardano-cli transaction build \
     --tx-in-redeemer-file assets/unit.json \
     --tx-in-collateral $COLLATERAL \
     --tx-out "$BENEFICIARY_ADDR + $COST" \
-    --tx-out "$USER_ADDRESS + 4000000 + 1 $(cat $USER_POLICY_ID).$USER_TOKEN_NAME + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
+    --tx-out "$USER_ADDRESS + $AMOUNT_LOVELACE + 1 $(cat $USER_POLICY_ID).$USER_TOKEN_NAME" \
+    --tx-out "$USER_ADDRESS + $AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
     --invalid-before $SLOT \
     --change-address $USER_ADDRESS \
     --protocol-params-file $PROTOCOL_PARAMS \
     --out-file $UNSIGNED_OUTPUT
-    
+
 # Sign the transaction
 cardano-cli transaction sign \
     --tx-body-file $UNSIGNED_OUTPUT \
