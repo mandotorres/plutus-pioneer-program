@@ -5,7 +5,7 @@ Decentalized Tix is a prototype for selling tickets using the blockchain.
 
 ## User Flow Process
 
-When a user creates an account, the company [mint](#mint-user-token)s and issues the user a user token. The user token allows for ticket purchasing. The company also [mint](#mint-ticket-creator-nft)s a ticket creator NFT. The ticket creator NFT allows the holder to mint tickets for a particular event. Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address. The vesting script allows a user token holder to [purchase](#purchase-ticket-nft) a ticket NFT, on a specified date, for a set price of 6₳.
+When a user creates an account, the company [mint](#mint-user-token)s and issues the user a user token. The user token allows for ticket purchasing. The company also [mint](#mint-ticket-creator-nft)s a ticket creator NFT. The ticket creator NFT allows the holder to mint tickets for a particular event. Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address. The vesting script allows a user token holder to [purchase](#purchase-ticket-nft-from-script-address-purchase-ticket-nft) a ticket NFT, on a specified date, for a set price of 6₳.
 
 ---
 
@@ -30,7 +30,7 @@ Prelude User>:set -XOverloadedStrings
 Prelude User>saveUserPolicy "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9"
 ```
 
-#### Mint user token {#mint-user-token}
+#### Mint user token
 ![Mint user token diagram](docs/resources/user/mint-token.png)
 
 ##### API
@@ -98,7 +98,7 @@ Prelude TicketCreatorNFT>:set -XOverloadedStrings
 Prelude TicketCreatorNFT>import Plutus.V2.Ledger.Api
 Prelude TicketCreatorNFT>saveNFTPolicy "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" (TxOutRef "2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85" 0) "Ticket Creator"
 ```
-#### Mint ticket creator NFT {#mint-ticket-creator-nft}
+#### Mint ticket creator NFT
 ![Mint ticket creator NFT diagram](docs/resources/ticket-creator/mint-nft.png)
 
 ##### API
@@ -169,7 +169,7 @@ Prelude TicketNFT>:set -XOverloadedStrings
 Prelude TicketNFT>import Plutus.V2.Ledger.Api
 Prelude TicketNFT>saveNFTPolicy (assetClass "47bfc748891f37b9d47cdbb8ff0ddf73df70f4a5ea22417a19ddc46a" "Ticket Creator") (TxOutRef "dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2" 0) "Ticket"
 ```
-#### Mint ticket NFT {#mint-ticket-nft}
+#### Mint ticket NFT
 ![Mint ticket NFT diagram](docs/resources/ticket/mint-nft.png)
 
 ##### API
@@ -257,7 +257,7 @@ Prelude Vesting>import Plutus.V2.Ledger.Api
 Prelude Vesting>saveVal (assetClass "170e169de9dc68629af74abdec8cb391377ff7a8034ff23ac5f6793d" "User") (VestingParams "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" 1681245690)
 ```
 
-##### Purchase ticket NFT from script address {#purchase-ticket-nft}
+##### Purchase ticket NFT from script address
 ![Purchase ticket NFT diagram](docs/resources/vesting/purchase-nft.png)
 
 ###### API
