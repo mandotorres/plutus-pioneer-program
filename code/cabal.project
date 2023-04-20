@@ -19,10 +19,6 @@ index-state:
 
 packages: 
     Utilities
-    Week02
-    Week03
-    Week04
-    Week05
     DecentralizedTix
 
 -- We never, ever, want this.
