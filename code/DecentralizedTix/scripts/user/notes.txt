@@ -1,5 +1,5 @@
 # create user plutus file
-saveNFTPolicy (TxOutRef "9995f350c6bbeead93a25bc488bfe16a635318c40efdb3ad7e2d13cb100a148d" 1) "User"
+saveUserPolicy "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9"
 
 # mint user
 scripts/user/mint.sh \

@@ -1,4 +1,4 @@
-# create user plutus file
+# create ticket creator plutus file
 saveNFTPolicy "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" (TxOutRef "2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85" 0) "Ticket Creator"
 
 # mint user
