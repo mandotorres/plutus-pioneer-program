@@ -18,7 +18,7 @@ When a user creates an account, the company [mint](#mint-user-token)s and issues
 saveUserPolicy :: PubKeyHash -> IO ()
 ```
 
-Notes:s
+Notes
 
 > **pkh**: pubKeyHash required to mint the user token, 
 > - company pubKeyHash
