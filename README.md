@@ -5,7 +5,7 @@ Decentalized Tix is a prototype for selling tickets using the blockchain.
 
 ## User Flow Process
 
-When a user creates an account, the company [mint](#mint-user-token)s and issues the user a user token. The user token allows for ticket purchasing. The company also [mint](#mint-ticket-creator-nft)s a ticket creator NFT. The ticket creator NFT allows the holder to mint tickets for a particular event. Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address. The vesting script allows a user token holder to [purchase](#purchase-ticket-nft-from-script-address-purchase-ticket-nft) a ticket NFT, on a specified date, for a set price of 6₳.
+When a user creates an account, the company [mint](#mint-user-token)s and issues the user a user token. The user token allows for ticket purchasing. The company also [mint](#mint-ticket-creator-nft)s a ticket creator NFT. The ticket creator NFT allows the holder to mint tickets for a particular event. Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address. The vesting script allows a user token holder to [purchase](#purchase-ticket-nft-from-script-address) a ticket NFT, on a specified date, for a set price of 6₳.
 
 ---
 
