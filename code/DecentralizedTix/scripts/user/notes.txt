@@ -3,13 +3,40 @@ saveUserPolicy "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9"
 
 # mint user
 scripts/user/mint.sh \
-  user2 \
-  6595da6ca09de972f8d79ccee73a17bdd186e37f5d7005c9d23b57be0996a80c#1 \
-  e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1
+  user3 \
+  a1680b604dd117569626c60a3fcd8842a736777bc1da820088b0d87012106198#0 \
+  a1680b604dd117569626c60a3fcd8842a736777bc1da820088b0d87012106198#1
 
 # burn user
 scripts/user/burn.sh \
   user2 \
-  5824420e21b91cf0c015a37678eacf9137494580defc9b604c8aec334ffb4bc5#1 \
-  5824420e21b91cf0c015a37678eacf9137494580defc9b604c8aec334ffb4bc5#0 \
+  c07f512d051dde483a48f2002cf917cbb9dc7c6597ee759264be2cea119011c4#1 \
+  3aff9d0e9cdc27ca012974694ca0b56241ff0a0ea23d62710f051fd3bedd5715#1 \
   e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1
+
+---
+# multi-witness
+
+# view tx
+cardano-cli transaction view --tx-body-file assets/user-mint-tx-a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9.raw
+  required signers
+
+cardano-cli transaction witness \
+  --signing-key-file keys/company.skey \
+  --tx-body-file assets/user-mint-tx-a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9.raw \
+  --out-file assets/company-tx-a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9.witness
+
+cardano-cli transaction witness  \
+  --signing-key-file keys/user3.skey \
+  --tx-body-file assets/user-mint-tx-a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9.raw \
+  --out-file assets/user3-tx-a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9.witness
+
+cardano-cli transaction assemble \
+  --tx-body-file assets/user-mint-tx-a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9.raw \
+  --witness-file assets/company-tx-a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9.witness \
+  --witness-file assets/user3-tx-a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9.witness \
+  --out-file assets/user-mint-tx-a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9.signed
+
+cardano-cli transaction submit \
+  --testnet-magic 2 \
+  --tx-file assets/user-mint-tx-a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9.signed

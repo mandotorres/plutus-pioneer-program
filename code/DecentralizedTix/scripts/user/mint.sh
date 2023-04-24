@@ -53,23 +53,23 @@ cardano-cli transaction build \
   --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT
 
-cardano-cli transaction sign \
-  --tx-body-file $UNSIGNED_OUTPUT \
-  --signing-key-file $USER_SIGNING_KEY \
-  --signing-key-file $COMPANY_SIGNING_KEY \
-  $NETWORK \
-  --out-file $SIGNED_OUTPUT
-
-# incorrect signing key
 # cardano-cli transaction sign \
-#     --tx-body-file $UNSIGNED_OUTPUT \
-#     --signing-key-file $INCORRECT_SIGNING_KEY \
-#     $NETWORK \
-#     --out-file $SIGNED_OUTPUT
+#   --tx-body-file $UNSIGNED_OUTPUT \
+#   --signing-key-file $USER_SIGNING_KEY \
+#   --signing-key-file $COMPANY_SIGNING_KEY \
+#   $NETWORK \
+#   --out-file $SIGNED_OUTPUT
 
-cardano-cli transaction submit \
-  $NETWORK \
-  --tx-file $SIGNED_OUTPUT
+# # incorrect signing key
+# # cardano-cli transaction sign \
+# #     --tx-body-file $UNSIGNED_OUTPUT \
+# #     --signing-key-file $INCORRECT_SIGNING_KEY \
+# #     $NETWORK \
+# #     --out-file $SIGNED_OUTPUT
 
-TX_ID=$(cardano-cli transaction txid --tx-file $SIGNED_OUTPUT)
-echo -e "\nTransaction txid: https://preview.cexplorer.io/tx/$TX_ID\n"
+# cardano-cli transaction submit \
+#   $NETWORK \
+#   --tx-file $SIGNED_OUTPUT
+
+# TX_ID=$(cardano-cli transaction txid --tx-file $SIGNED_OUTPUT)
+# echo -e "\nTransaction txid: https://preview.cexplorer.io/tx/$TX_ID\n"
