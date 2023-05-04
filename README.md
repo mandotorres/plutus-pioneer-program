@@ -1,7 +1,7 @@
 
 # Decentralized Tix
 
-Decentalized Tix is a prototype for selling tickets using the blockchain. 
+Decentalized Tix is a prototype for an event ticketing system using the blockchain. 
 
 ## User Flow Process
 ![Burn user token diagram](docs/resources/user-flow-diagram.jpg)
