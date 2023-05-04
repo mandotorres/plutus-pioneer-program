@@ -1,14 +1,14 @@
-# create ticket creator plutus file
-saveNFTPolicy "tSwift" 1681245690 "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" (TxOutRef "cc726063229027710bb0ee04c3560a490fa706ed910569748cf5f8168aaa23e9" 1) "Ticket Creator"
+# create event nft plutus file
+saveNFTPolicy "tSwift" 1681245690 "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" (TxOutRef "cc726063229027710bb0ee04c3560a490fa706ed910569748cf5f8168aaa23e9" 1) "Event"
 
-# mint user
-scripts/ticketCreator/mint.sh \
+# mint event
+scripts/event/mint.sh \
   company \
   2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0 \
   f8d4d6b984a1b348bbb198b6a25eceeded9b516fc50b676b7912c5582ba73534#0
 
-# burn user
-scripts/ticketCreator/burn.sh \
+# burn event
+scripts/event/burn.sh \
   company \
   e315906ec4896a8ff808b20d9d74e61aa8cd50d5f11cb1b36ba72c81a5330c1c#1 \
   6850feba5d270d19016ec3478ab9fb615fb9ac8bebd3e15e0a6f8f9f4603fcb2#1 \

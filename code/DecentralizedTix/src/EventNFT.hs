@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 
-module TicketCreatorNFT where
+module EventNFT where
 
 import qualified Data.ByteString.Char8      as BS8
 import           Plutus.V1.Ledger.Value     (flattenValue)
@@ -97,7 +97,7 @@ nftPolicy artist startTime pkh oref tn = mkMintingPolicyScript $
 
 saveNFTPolicy :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> IO ()
 saveNFTPolicy artist startTime pkh oref tn = writePolicyToFile
-    (printf "assets/tc-nft-%s-%s-%s#%d-%s.plutus"
+    (printf "assets/event-nft-%s-%s-%s#%d-%s.plutus"
         artist'
         (show $ getPOSIXTime startTime)
         (show $ txOutRefId oref)

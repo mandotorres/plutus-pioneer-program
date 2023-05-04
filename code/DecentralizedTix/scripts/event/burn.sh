@@ -16,16 +16,16 @@ REDEEMER="assets/unit.json"
 USER_ADDR=$(cat keys/$USER.addr)
 USER_PKH=$(cat keys/$USER.pkh)
 USER_SIGNING_KEY="keys/$USER.skey"
-TOKEN_NAME=$(echo -n "Ticket Creator" | xxd -ps | tr -d '\n')
+TOKEN_NAME=$(echo -n "Event" | xxd -ps | tr -d '\n')
 
 PARAMS_STRING="$USER_PKH-$MINT_UTXO-$TOKEN_NAME"
 
 # file outputs
-MINT_SCRIPT="assets/tc-nft-$PARAMS_STRING.plutus"
-POLICY_ID="policy/tc-nft-$PARAMS_STRING"
+MINT_SCRIPT="assets/event-nft-$PARAMS_STRING.plutus"
+POLICY_ID="policy/event-nft-$PARAMS_STRING"
 PROTOCOL_PARAMS="assets/protocol.params"
-SIGNED_OUTPUT="assets/tc-burn-tx-$PARAMS_STRING.signed"
-UNSIGNED_OUTPUT="assets/tc-burn-tx-$PARAMS_STRING.raw"
+SIGNED_OUTPUT="assets/event-burn-tx-$PARAMS_STRING.signed"
+UNSIGNED_OUTPUT="assets/event-burn-tx-$PARAMS_STRING.raw"
 
 cardano-cli transaction build \
   --babbage-era \

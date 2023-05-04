@@ -3,22 +3,22 @@
 USER=$1
 PAYMENT_UTXO=$2
 TICKET_NFT_UTXO=$3
-TC_NFT_UTXO=$4
-TC_MINT_UTXO=$5
+EVENT_NFT_UTXO=$4
+EVENT_MINT_UTXO=$5
 DEADLINE=$6
 
 
 ADA="2"
 AMOUNT_LOVELACE=$(($ADA*1000000))
-TC_TOKEN_NAME=$(echo -n "Ticket Creator" | xxd -ps | tr -d '\n')
+EVENT_TOKEN_NAME=$(echo -n "Event" | xxd -ps | tr -d '\n')
 TICKET_TOKEN_NAME=$(echo -n "Ticket" | xxd -ps | tr -d '\n')
 USER_ADDR=$(cat keys/$USER.addr)
 COMPANY_PKH=$(cat keys/company.pkh)
 USER_SIGNING_KEY="keys/$USER.skey"
 
 # file outputs
-TC_POLICY_ID=$(cat "policy/tc-nft-$COMPANY_PKH-$TC_MINT_UTXO-$TC_TOKEN_NAME")
-PARAMS_STRING="$TC_POLICY_ID-$TC_TOKEN_NAME-$TC_NFT_UTXO-$TICKET_TOKEN_NAME"
+EVENT_POLICY_ID=$(cat "policy/event-nft-$COMPANY_PKH-$EVENT_MINT_UTXO-$EVENT_TOKEN_NAME")
+PARAMS_STRING="$EVENT_POLICY_ID-$EVENT_TOKEN_NAME-$EVENT_NFT_UTXO-$TICKET_TOKEN_NAME"
 NETWORK="--testnet-magic 2"
 TICKET_POLICY_ID="policy/ticket-nft-$PARAMS_STRING"
 UNSIGNED_OUTPUT="assets/pv-$PARAMS_STRING.raw"

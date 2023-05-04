@@ -5,7 +5,7 @@
 import Plutus.V1.Ledger.Value
 
 # create ticket plutus file
-saveNFTPolicy 1 (assetClass "47bfc748891f37b9d47cdbb8ff0ddf73df70f4a5ea22417a19ddc46a" "Ticket Creator") (TxOutRef "dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2" 0) "Ticket"
+saveNFTPolicy 1 (assetClass "47bfc748891f37b9d47cdbb8ff0ddf73df70f4a5ea22417a19ddc46a" "Event") (TxOutRef "dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2" 0) "Ticket"
 
 # mint ticket
 scripts/ticket/mint.sh \
