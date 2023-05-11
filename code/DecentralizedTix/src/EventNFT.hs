@@ -41,13 +41,13 @@ PlutusTx.unstableMakeIsData ''MintAction -- Use TH to create an instance for IsD
 {-# INLINABLE mkNFTPolicy #-}
 mkNFTPolicy :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> MintAction -> ScriptContext -> Bool
 mkNFTPolicy artist startTime pkh oref tn action ctx =
-                            traceIfFalse "missing signature"    signedByOwner                        && 
-                            (case action of
-                                Mint -> traceIfFalse "UTxO not consumed"    hasUTxO                  &&
-                                        traceIfFalse "missing artist"      (hasArtist artist)        &&
-                                        traceIfFalse "missing start time"  (hasStartTime startTime)  &&
-                                        traceIfFalse "wrong amount minted" (checkMintedAmount 1)
-                                Burn -> traceIfFalse "wrong amount burned" (checkMintedAmount (-1)))
+    traceIfFalse "missing signature"    signedByOwner                        && 
+    (case action of
+      Mint -> traceIfFalse "UTxO not consumed"    hasUTxO                    &&
+              traceIfFalse "missing artist"      (hasArtist artist)          &&
+              traceIfFalse "missing start time"  (hasStartTime startTime)    &&
+              traceIfFalse "wrong amount minted" (checkMintedAmount 1)
+      Burn -> traceIfFalse "wrong amount burned" (checkMintedAmount (-1)))
   where
     info :: TxInfo
     info = scriptContextTxInfo ctx
@@ -57,8 +57,8 @@ mkNFTPolicy artist startTime pkh oref tn action ctx =
 
     checkMintedAmount :: Integer -> Bool
     checkMintedAmount c = case flattenValue (txInfoMint info) of
-        [(_, tn'', amt)] -> tn'' == tn && amt == c
-        _                -> False
+      [(_, tn'', amt)] -> tn'' == tn && amt == c
+      _                -> False
 
     signedByOwner :: Bool
     signedByOwner = txSignedBy info pkh
@@ -93,12 +93,12 @@ nftCode = $$(PlutusTx.compile [|| mkWrappedNFTPolicy ||])
 
 nftPolicy :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> MintingPolicy
 nftPolicy artist startTime pkh oref tn = mkMintingPolicyScript $
-    nftCode
-        `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData artist)
-        `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData startTime)
-        `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData pkh)
-        `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData oref)
-        `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData tn)
+  nftCode
+    `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData artist)
+    `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData startTime)
+    `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData pkh)
+    `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData oref)
+    `PlutusTx.applyCode` PlutusTx.liftCode (PlutusTx.toBuiltinData tn)
 
 ---------------------------------------------------------------------------------------------------
 ------------------------------------- HELPER FUNCTIONS --------------------------------------------
@@ -106,16 +106,16 @@ nftPolicy artist startTime pkh oref tn = mkMintingPolicyScript $
 saveNFTPolicy :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> IO ()
 saveNFTPolicy artist startTime pkh oref tn = writePolicyToFile
     (printf "assets/event/%s-%s-%s#%d-%s.plutus"
-        (hexString artist)
-        (show $ getPOSIXTime startTime)
-        (show $ txOutRefId oref)
-        (txOutRefIdx oref)
-        (hexString $ unTokenName tn)) $
+      (hexString artist)
+      (show $ getPOSIXTime startTime)
+      (show $ txOutRefId oref)
+      (txOutRefIdx oref)
+      (hexString $ unTokenName tn)) $
     nftPolicy artist startTime pkh oref tn
   where
     hexString :: BuiltinByteString -> String
     hexString bbs = case bbs of
-        (BuiltinByteString bs) -> BS8.unpack $ bytesToHex bs
+      (BuiltinByteString bs) -> BS8.unpack $ bytesToHex bs
 
 nftCurrencySymbol :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> CurrencySymbol
 nftCurrencySymbol artist startTime pkh oref tn = currencySymbol $ nftPolicy artist startTime pkh oref tn
