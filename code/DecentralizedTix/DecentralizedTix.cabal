@@ -28,8 +28,8 @@ common common-all
 library
     import:             common-all
     hs-source-dirs:     src
-    exposed-modules:    Main
+    exposed-modules:    EventNFT
+                        Main
                         ParameterizedVesting
-                        TicketCreatorNFT
                         TicketNFT
                         User

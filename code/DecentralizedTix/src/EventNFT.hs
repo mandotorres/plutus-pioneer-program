@@ -5,7 +5,7 @@
 
 module EventNFT where
 
-import qualified Data.ByteString.Char8      as BS8
+import qualified Data.ByteString.Char8       as BS8
 import           Plutus.V1.Ledger.Value     (flattenValue)
 import           Plutus.V2.Ledger.Api       (BuiltinData
                                            , CurrencySymbol
@@ -24,21 +24,25 @@ import           Plutus.V2.Ledger.Contexts  (txSignedBy)
 import qualified PlutusTx
 import           PlutusTx.Builtins.Internal (BuiltinByteString (BuiltinByteString))
 import           PlutusTx.Prelude           (Bool (False), Eq ((==)), any
-                                           , traceIfFalse, ($), (&&), (||), Ord ((>)), emptyByteString)
-import           Prelude                    (Integer, IO, String, Show (show), filter, Eq ((/=)))
+                                           , traceIfFalse, ($), (&&), (||), Ord ((>)), not)
+import           Prelude                    (Integer, IO, String, Show (show))
 import           Text.Printf                (printf)
 import           Utilities                  (bytesToHex, currencySymbol
                                            , wrapPolicy, writePolicyToFile)
+import PlutusTx.Builtins (equalsByteString, emptyByteString)
 
 
 {-# INLINABLE mkNFTPolicy #-}
 mkNFTPolicy :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> () -> ScriptContext -> Bool
 mkNFTPolicy artist startTime pkh oref tn () ctx =
+                            -- signed
                             traceIfFalse "missing signature"    signedByOwner            &&
+                            -- mint
                            (traceIfFalse "UTxO not consumed"    hasUTxO                  &&
                             traceIfFalse "missing artist"      (hasArtist artist)        &&
                             traceIfFalse "missing start time"  (hasStartTime startTime)  &&
                             traceIfFalse "wrong amount minted" (checkMintedAmount 1))    ||
+                            -- burn
                             traceIfFalse "wrong amount burned" (checkMintedAmount (-1))
   where
     info :: TxInfo
@@ -55,8 +59,8 @@ mkNFTPolicy artist startTime pkh oref tn () ctx =
     signedByOwner :: Bool
     signedByOwner = txSignedBy info pkh
 
-    hasArtist    :: BuiltinByteString -> Bool
-    hasArtist a = a == emptyByteString
+    hasArtist     :: BuiltinByteString -> Bool
+    hasArtist bbs = not $ equalsByteString bbs emptyByteString
 
     hasStartTime   :: POSIXTime -> Bool
     hasStartTime t = t > 0
@@ -97,7 +101,7 @@ nftPolicy artist startTime pkh oref tn = mkMintingPolicyScript $
 
 saveNFTPolicy :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> IO ()
 saveNFTPolicy artist startTime pkh oref tn = writePolicyToFile
-    (printf "assets/event-nft-%s-%s-%s#%d-%s.plutus"
+    (printf "assets/event/%s-%s-%s#%d-%s.plutus"
         artist'
         (show $ getPOSIXTime startTime)
         (show $ txOutRefId oref)
@@ -106,7 +110,8 @@ saveNFTPolicy artist startTime pkh oref tn = writePolicyToFile
     nftPolicy artist startTime pkh oref tn
   where
     artist' :: String
-    artist' = filter (/='"') (show artist)
+    artist' = case artist of
+        (BuiltinByteString bs) -> BS8.unpack $ bytesToHex bs
 
     tn' :: String
     tn' = case unTokenName tn of

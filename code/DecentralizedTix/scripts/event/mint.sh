@@ -4,33 +4,35 @@
 USER=$1
 PAYMENT_UTXO=$2
 COLLATERAL=$3
-
+ARTIST=$4
+START_TIME=$5
 
 ADA="3"
 AMOUNT_LOVELACE=$(($ADA*1000000))
+ARTIST_NAME=$(echo -n $ARTIST | xxd -ps | tr -d '\n')
 # INCORRECT_SIGNING_KEY="keys/user2.skey"
 NETWORK="--testnet-magic 2"
 USER_ADDR=$(cat keys/$USER.addr)
 USER_PKH=$(cat keys/$USER.pkh)
 USER_SIGNING_KEY="keys/$USER.skey"
 TOKEN_NAME=$(echo -n "Event" | xxd -ps | tr -d '\n')
-UNIT_JSON="assets/unit.json"
+UNIT_JSON="assets/json/unit.json"
 
-PARAMS_STRING="$USER_PKH-$PAYMENT_UTXO-$TOKEN_NAME"
+PARAMS_STRING="$ARTIST_NAME-$START_TIME-$PAYMENT_UTXO-$TOKEN_NAME"
 
 # file outputs
-MINT_SCRIPT="assets/event-nft-$PARAMS_STRING.plutus"
-POLICY_ID="policy/event-nft-$PARAMS_STRING"
+MINT_SCRIPT="assets/event/$PARAMS_STRING.plutus"
+POLICY_ID="policy/event/$PARAMS_STRING"
 PROTOCOL_PARAMS="assets/protocol.params"
-SIGNED_OUTPUT="assets/event-mint-tx-$PARAMS_STRING.signed"
-UNSIGNED_OUTPUT="assets/event-mint-tx-$PARAMS_STRING.raw"
+SIGNED_OUTPUT="assets/event/mint-tx-$PARAMS_STRING.signed"
+UNSIGNED_OUTPUT="assets/event/mint-tx-$PARAMS_STRING.raw"
 
 # generate protocol params every time the script is run
 cardano-cli query protocol-parameters $NETWORK --out-file $PROTOCOL_PARAMS
 echo -e "\nprotocol params file $PROTOCOL_PARAMS created\n"
 
-if [ ! -d "policy" ]; then
-    mkdir policy
+if [ ! -d "policy/event" ]; then
+    mkdir -p policy/event
 fi
 
 # generate policy id every time the script is run
