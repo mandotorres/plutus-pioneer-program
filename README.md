@@ -4,13 +4,17 @@
 Decentalized Tix is a prototype for an event ticketing system using the blockchain. 
 
 ## User Flow Process
-![Burn user token diagram](docs/resources/user-flow-diagram.jpg)
-The company [mint](#mint-ticket-creator-nft)s a ticket creator NFT. The ticket creator NFT allows the holder to mint tickets for a particular event. Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address. To [purchase](#purchase-ticket-nft-from-script-address) a ticket NFT, the following conditions must be met: 
-1. the transaction must include a user token, 
-2. the specified date must have lapsed, and 
-3. the set price of 6₳ must be paid to the company
+![User Flow diagram](docs/resources/user-flow-diagram.jpg)
+The company [mint](#mint-event-nft)s an event NFT. 
 
-A user token is [mint](#mint-user-token)ed upon user account creation. The user token must be present to allow for ticket purchasing. 
+The event NFT allows the holder to mint tickets for a particular event. 
+
+Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address. To [purchase](#purchase-ticket-nft-from-script-address) a ticket NFT, the following conditions must be met: 
+1. the transaction must include a user token, 
+2. the ticket sale date is in the past, and 
+3. the ticket price must be paid to the company
+
+A user token is [mint](#mint-user-token)ed upon user account creation. The user token is required to purchase tickets. 
 
 ---
 
@@ -25,7 +29,7 @@ saveUserPolicy :: PubKeyHash -> IO ()
 
 Notes
 
-> **pkh**: pubKeyHash required to mint the user token, 
+> **pkh**: pubKeyHash required to mint/burn the user token, 
 > - company pubKeyHash
 
 ```bash
@@ -79,72 +83,84 @@ root@cd18371d4d13:scripts/user/burn.sh \
 
 ---
 
-### Ticket Creator NFT
+### Event NFT
 
-#### Generate ticket creator NFT Plutus file
+#### Generate event NFT Plutus file
 
 ```haskell
---               pkh           oref        tn
-saveNFTPolicy :: PubKeyHash -> TxOutRef -> TokenName -> IO ()
+--               artist               startTime    pkh           oref        tn
+saveNFTPolicy :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> IO ()
 ```
 
 Notes:
 
-> **pkh**: pubKeyHash required to mint the ticket creator NFT, in this case...the company's pubKeyHash
+> **artist**: artist name
+
+> **startTime**: event start time
+
+> **pkh**: pubKeyHash required to mint/burn the event NFT, in this case...the company's pubKeyHash
 
 > **oref**: utxo to consume
 
-> **tn**: ticket token name
+> **tn**: event token name
 
 ```bash
 root@cd18371d4d13:/workspace/code/DecentralizedTix# cabal repl
 Prelude Main>:l TicketCreatorNFT
 Prelude TicketCreatorNFT>:set -XOverloadedStrings
 Prelude TicketCreatorNFT>import Plutus.V2.Ledger.Api
-Prelude TicketCreatorNFT>saveNFTPolicy "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" (TxOutRef "2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85" 0) "Ticket Creator"
+Prelude TicketCreatorNFT>saveNFTPolicy "Taylor Swift" 1683453600000 "0c0a582ed7626ef6df14d295c7bbdf225c123b3916fa97ccd5d4761d" (TxOutRef "a06d46e6bea9bc5a0b499e5a83d585aa1d1875d8d242b9dcfffb535131272c04" 1) "Event"
 ```
-#### Mint ticket creator NFT
-![Mint ticket creator NFT diagram](docs/resources/ticket-creator/mint-nft.png)
+#### Mint event NFT
+![Mint event NFT diagram](docs/resources/event/mint-nft.png)
 
 ##### API
 ```
-script: scripts/script: scripts/ticketCreator/mint.sh
+script: scripts/script: scripts/event/mint.sh
 params: 
   USER=$1            # who's paying for tx?
   PAYMENT_UTXO=$2    # how are they paying?
   COLLATERAL=$3      # collateral utxo
+  ARTIST=$4          # artist
+  START_TIME=$5      # start time
 ```
 
 ##### Example
 ```
-root@cd18371d4d13:scripts/ticketCreator/mint.sh \    
->   company \
->   2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0 \
->   f8d4d6b984a1b348bbb198b6a25eceeded9b516fc50b676b7912c5582ba73534#0
+root@cd18371d4d13:scripts/event/mint.sh \    
+>   decentralized-tix \
+>   a06d46e6bea9bc5a0b499e5a83d585aa1d1875d8d242b9dcfffb535131272c04#1 \
+>   b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e#1 \
+>   "Taylor Swift" \
+>   1683453600000
 ```
 
-#### Burn ticket creator NFT
-![Burn ticket creator NFT diagram](docs/resources/ticket-creator/burn-nft.png)
+#### Burn event NFT
+![Burn event NFT diagram](docs/resources/event/burn-nft.png)
 
 ##### API
 ```
-script: scripts/ticketCreator/burn.sh
+script: scripts/event/burn.sh
 params:
   USER=$1            # who's paying for tx?
   PAYMENT_UTXO=$2    # how are they paying?
   NFT_UTXO=$3        # utxo to consume (contains NFT)
   COLLATERAL=$4      # collateral utxo
-  MINT_UTXO=$5       # utxo used in ticket creator minting process
+  MINT_UTXO=$5       # utxo used in event minting process
+  ARTIST=$6          # artist
+  START_TIME=$7      # start time
 ```
 
 ##### Example
 ```
-root@cd18371d4d13:scripts/ticketCreator/burn.sh \
->   company \
->   081386b2ac4c2f103ec38fd26a52ca50536a043508dce2af5460cf45bed88402#0 \
->   f6793c54e757dc790837ff1b0c0c6bafa9fc11d228ee779762c5205ca7001ebe#0 \
->   f8d4d6b984a1b348bbb198b6a25eceeded9b516fc50b676b7912c5582ba73534#0 \
->   2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0
+root@cd18371d4d13:scripts/event/burn.sh \
+>   decentralized-tix \
+>   d987efa5642454564f72ae45203bc4647eede2a2f21160ed965efedde873c4d4#1 \
+>   d987efa5642454564f72ae45203bc4647eede2a2f21160ed965efedde873c4d4#0 \
+>   b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e#1 \
+>   a06d46e6bea9bc5a0b499e5a83d585aa1d1875d8d242b9dcfffb535131272c04#1 \
+>   "Taylor Swift" \
+>   1683453600000
 ```
 
 ---
@@ -161,7 +177,7 @@ saveNFTPolicy :: AssetClass -> TxOutRef -> TokenName -> IO ()
 Notes:
 
 > **ac**: asset class permitted to mint ticket NFT
-> - event ticket creator NFT asset class
+> - event NFT asset class
 
 > **oref**: utxo to consume
 
@@ -172,7 +188,7 @@ root@cd18371d4d13:/workspace/code/DecentralizedTix# cabal repl
 Prelude Main>:l TicketNFT
 Prelude TicketNFT>:set -XOverloadedStrings
 Prelude TicketNFT>import Plutus.V2.Ledger.Api
-Prelude TicketNFT>saveNFTPolicy (assetClass "47bfc748891f37b9d47cdbb8ff0ddf73df70f4a5ea22417a19ddc46a" "Ticket Creator") (TxOutRef "dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2" 0) "Ticket"
+Prelude TicketNFT>saveNFTPolicy (assetClass "47bfc748891f37b9d47cdbb8ff0ddf73df70f4a5ea22417a19ddc46a" "Event") (TxOutRef "dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2" 0) "Ticket"
 ```
 #### Mint ticket NFT
 ![Mint ticket NFT diagram](docs/resources/ticket/mint-nft.png)
@@ -184,8 +200,8 @@ params:
   USER=$1            # who's paying for tx?
   PAYMENT_UTXO=$2    # how are they paying?
   COLLATERAL=$3      # collateral utxo
-  TC_NFT_UTXO=$4     # utxo to consume (contains ticket creator NFT)
-  TC_MINT_UTXO=$5    # utxo used in ticket creator minting process
+  EVENT_NFT_UTXO=$4     # utxo to consume (contains event NFT)
+  EVENT_MINT_UTXO=$5    # utxo used in event minting process
   DEADLINE=$6        # date ticket is available for purchase
 ```
 
@@ -209,8 +225,8 @@ params:
   USER=$1            # who's paying for tx?
   PAYMENT_UTXO=$2    # how are they paying?
   COLLATERAL=$3      # collateral utxo
-  TC_NFT_UTXO=$4     # utxo to consume (contains ticket creator NFT)
-  TC_MINT_UTXO=$5    # utxo used in ticket creator minting process
+  EVENT_NFT_UTXO=$4     # utxo to consume (contains event NFT)
+  EVENT_MINT_UTXO=$5    # utxo used in event minting process
   DEADLINE=$6        # date ticket is available for purchase
 ```
 
@@ -272,7 +288,7 @@ params:
   USER=$1            # who's paying for tx?
   PAYMENT_UTXO=$2    # how are they paying?
   TICKET_NFT_UTXO    # utxo used in ticket minting process
-  TC_MINT_UTXO=$4    # utxo used in ticket creator minting process
+  EVENT_MINT_UTXO=$4    # utxo used in event minting process
   DEADLINE=$5        # date ticket is available for purchase
 ```
 
@@ -301,8 +317,8 @@ params:
   USER=$1              # who's paying for tx?
   PAYMENT_UTXO=$2      # how are they paying?
   TICKET_NFT_UTXO=$3   # utxo to consume (contains user token)
-  TC_NFT_UTXO=$4       # utxo used in ticket minting process
-  TC_MINT_UTXO=$5      # utxo used in ticket creator minting process
+  EVENT_NFT_UTXO=$4    # utxo used in ticket minting process
+  EVENT_MINT_UTXO=$5   # utxo used in event minting process
   DEADLINE=$6          # date ticket is available for purchase
 ```
 
