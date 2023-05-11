@@ -4,7 +4,7 @@ saveNFTPolicy "Taylor Swift" 1683453600000 "0c0a582ed7626ef6df14d295c7bbdf225c12
 # mint event
 scripts/event/mint.sh \
   decentralized-tix \
-  430f24cad3f650dd98c584424d10cfe90c6916d89b026d6319b19ad8afd02e87#1 \
+  a06d46e6bea9bc5a0b499e5a83d585aa1d1875d8d242b9dcfffb535131272c04#1 \
   b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e#1 \
   "Taylor Swift" \
   1683453600000
@@ -13,9 +13,9 @@ scripts/event/mint.sh \
 # burn event
 scripts/event/burn.sh \
   decentralized-tix \
-  17296c2ac4221633bc8ed2ab88f3ef11dadc4fa8607e8c615b3ec916478ce4de#1 \
-  17296c2ac4221633bc8ed2ab88f3ef11dadc4fa8607e8c615b3ec916478ce4de#0 \
+  d987efa5642454564f72ae45203bc4647eede2a2f21160ed965efedde873c4d4#1 \
+  d987efa5642454564f72ae45203bc4647eede2a2f21160ed965efedde873c4d4#0 \
   b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e#1 \
-  430f24cad3f650dd98c584424d10cfe90c6916d89b026d6319b19ad8afd02e87#1 \
+  a06d46e6bea9bc5a0b499e5a83d585aa1d1875d8d242b9dcfffb535131272c04#1 \
   "Taylor Swift" \
   1683453600000

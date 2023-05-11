@@ -16,7 +16,7 @@ USER_ADDR=$(cat keys/$USER.addr)
 USER_PKH=$(cat keys/$USER.pkh)
 USER_SIGNING_KEY="keys/$USER.skey"
 TOKEN_NAME=$(echo -n "Event" | xxd -ps | tr -d '\n')
-UNIT_JSON="assets/json/unit.json"
+UNIT_JSON="assets/json/mint.json"
 
 PARAMS_STRING="$ARTIST_NAME-$START_TIME-$PAYMENT_UTXO-$TOKEN_NAME"
 

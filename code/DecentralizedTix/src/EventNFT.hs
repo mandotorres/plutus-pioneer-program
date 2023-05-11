@@ -2,6 +2,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE DeriveAnyClass #-}
 
 module EventNFT where
 
@@ -24,7 +25,8 @@ import           Plutus.V2.Ledger.Contexts  (txSignedBy)
 import qualified PlutusTx
 import           PlutusTx.Builtins.Internal (BuiltinByteString (BuiltinByteString))
 import           PlutusTx.Prelude           (Bool (False), Eq ((==)), any
-                                           , traceIfFalse, ($), (&&), (||), Ord ((>)), not)
+                                           , traceIfFalse, ($), (&&), Ord ((>)), not)
+import qualified Prelude
 import           Prelude                    (Integer, IO, String, Show (show))
 import           Text.Printf                (printf)
 import           Utilities                  (bytesToHex, currencySymbol
@@ -32,18 +34,20 @@ import           Utilities                  (bytesToHex, currencySymbol
 import PlutusTx.Builtins (equalsByteString, emptyByteString)
 
 
+data MintAction = Mint | Burn deriving (Prelude.Eq, Prelude.Ord, Prelude.Show)
+
+PlutusTx.unstableMakeIsData ''MintAction -- Use TH to create an instance for IsData.
+
 {-# INLINABLE mkNFTPolicy #-}
-mkNFTPolicy :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> () -> ScriptContext -> Bool
-mkNFTPolicy artist startTime pkh oref tn () ctx =
-                            -- signed
-                            traceIfFalse "missing signature"    signedByOwner            &&
-                            -- mint
-                           (traceIfFalse "UTxO not consumed"    hasUTxO                  &&
-                            traceIfFalse "missing artist"      (hasArtist artist)        &&
-                            traceIfFalse "missing start time"  (hasStartTime startTime)  &&
-                            traceIfFalse "wrong amount minted" (checkMintedAmount 1))    ||
-                            -- burn
-                            traceIfFalse "wrong amount burned" (checkMintedAmount (-1))
+mkNFTPolicy :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> MintAction -> ScriptContext -> Bool
+mkNFTPolicy artist startTime pkh oref tn action ctx =
+                            traceIfFalse "missing signature"    signedByOwner                        && 
+                            (case action of
+                                Mint -> traceIfFalse "UTxO not consumed"    hasUTxO                  &&
+                                        traceIfFalse "missing artist"      (hasArtist artist)        &&
+                                        traceIfFalse "missing start time"  (hasStartTime startTime)  &&
+                                        traceIfFalse "wrong amount minted" (checkMintedAmount 1)
+                                Burn -> traceIfFalse "wrong amount burned" (checkMintedAmount (-1)))
   where
     info :: TxInfo
     info = scriptContextTxInfo ctx
@@ -102,19 +106,15 @@ nftPolicy artist startTime pkh oref tn = mkMintingPolicyScript $
 saveNFTPolicy :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> IO ()
 saveNFTPolicy artist startTime pkh oref tn = writePolicyToFile
     (printf "assets/event/%s-%s-%s#%d-%s.plutus"
-        artist'
+        (hexString artist)
         (show $ getPOSIXTime startTime)
         (show $ txOutRefId oref)
         (txOutRefIdx oref)
-        tn') $
+        (hexString $ unTokenName tn)) $
     nftPolicy artist startTime pkh oref tn
   where
-    artist' :: String
-    artist' = case artist of
-        (BuiltinByteString bs) -> BS8.unpack $ bytesToHex bs
-
-    tn' :: String
-    tn' = case unTokenName tn of
+    hexString :: BuiltinByteString -> String
+    hexString bbs = case bbs of
         (BuiltinByteString bs) -> BS8.unpack $ bytesToHex bs
 
 nftCurrencySymbol :: BuiltinByteString -> POSIXTime -> PubKeyHash -> TxOutRef -> TokenName -> CurrencySymbol
