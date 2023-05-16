@@ -7,16 +7,17 @@ COLLATERAL=$3
 ARTIST=$4
 START_TIME=$5
 
+
 ADA="3"
 AMOUNT_LOVELACE=$(($ADA*1000000))
 ARTIST_NAME=$(echo -n $ARTIST | xxd -ps | tr -d '\n')
 # INCORRECT_SIGNING_KEY="keys/user2.skey"
 NETWORK="--testnet-magic 2"
+REDEEMER="assets/json/mint.json"
+TOKEN_NAME=$(echo -n "Event" | xxd -ps | tr -d '\n')
 USER_ADDR=$(cat keys/$USER.addr)
 USER_PKH=$(cat keys/$USER.pkh)
 USER_SIGNING_KEY="keys/$USER.skey"
-TOKEN_NAME=$(echo -n "Event" | xxd -ps | tr -d '\n')
-UNIT_JSON="assets/json/mint.json"
 
 PARAMS_STRING="$ARTIST_NAME-$START_TIME-$PAYMENT_UTXO-$TOKEN_NAME"
 
@@ -49,7 +50,7 @@ cardano-cli transaction build \
   --change-address $USER_ADDR \
   --mint "1 $(cat $POLICY_ID).$TOKEN_NAME" \
   --mint-script-file $MINT_SCRIPT \
-  --mint-redeemer-file $UNIT_JSON \
+  --mint-redeemer-file $REDEEMER \
   --protocol-params-file $PROTOCOL_PARAMS \
   --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT
