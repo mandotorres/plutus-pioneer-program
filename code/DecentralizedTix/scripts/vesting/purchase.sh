@@ -7,27 +7,34 @@ USER_TOKEN_UTXO=$4
 COLLATERAL=$5
 SLOT=$6
 TICKET_MINT_UTXO=$7
-EVENT_MINT_UTXO=$8
-DEADLINE=$9
+EVENT_NFT_UTXO=$8
+EVENT_MINT_UTXO=$9
+ARTIST=${10}
+START_TIME=${11}
+SEAT=${12}
 
 ADA="2"
 AMOUNT_LOVELACE=$(($ADA*1000000))
-BENEFICIARY=company
+ARTIST_NAME=$(echo -n $ARTIST | xxd -ps | tr -d '\n')
+BENEFICIARY=decentralized-tix
 BENEFICIARY_ADDR=$(cat keys/$BENEFICIARY.addr)
 BENEFICIARY_PKH=$(cat keys/$BENEFICIARY.pkh)
 BENEFICIARY_SIGNING_KEY=keys/$BENEFICIARY.skey
-COST=6000000 # 6 ada
+COMPANY_PKH=$(cat keys/company.pkh)
+COST=5000000 # 5 ₳ (ada)
 PROTOCOL_PARAMS=assets/protocol.params
-SCRIPT_PARAMS_STRING="$USER_POLICY_ID-$USER_TOKEN_NAME-$COMPANY_PKH-$DEADLINE"
-SIGNED_OUTPUT=assets/collect-gift-$SCRIPT_PARAMS_STRING.signed
 EVENT_TOKEN_NAME=$(echo -n "Event" | xxd -ps | tr -d '\n')
 TICKET_TOKEN_NAME=$(echo -n "Ticket" | xxd -ps | tr -d '\n')
-EVENT_POLICY_ID=$(cat "policy/event-nft-$BENEFICIARY_PKH-$EVENT_MINT_UTXO-$EVENT_TOKEN_NAME")
-TICKET_POLICY_ID="policy/ticket-nft-$EVENT_POLICY_ID-$EVENT_TOKEN_NAME-$TICKET_MINT_UTXO-$TICKET_TOKEN_NAME"
-USER_POLICY_ID="policy/user-$BENEFICIARY_PKH"
+EVENT_POLICY_ID=$(cat "policy/event/$ARTIST_NAME-$START_TIME-$EVENT_MINT_UTXO-$EVENT_TOKEN_NAME")
+PARAMS_STRING="$EVENT_POLICY_ID-$EVENT_TOKEN_NAME-$EVENT_NFT_UTXO-$TICKET_TOKEN_NAME"
+TICKET_POLICY_ID="policy/ticket/$SEAT-$EVENT_POLICY_ID-$EVENT_TOKEN_NAME-$TICKET_MINT_UTXO-$TICKET_TOKEN_NAME"
+USER_POLICY_ID="policy/user/$COMPANY_PKH"
 USER_TOKEN_NAME=$(echo -n "User" | xxd -ps | tr -d '\n')
-UNSIGNED_OUTPUT=assets/collect-gift-$SCRIPT_PARAMS_STRING.raw
 USER_ADDRESS=$(cat keys/$USER.addr)
+
+SCRIPT_PARAMS_STRING="$(cat $USER_POLICY_ID)-$USER_TOKEN_NAME"
+SIGNED_OUTPUT=assets/vesting/purchase-tx-$SCRIPT_PARAMS_STRING.signed
+UNSIGNED_OUTPUT=assets/vesting/purchase-tx-$SCRIPT_PARAMS_STRING.raw
 
 # Query the protocol parameters \
 cardano-cli query protocol-parameters \
@@ -42,9 +49,9 @@ cardano-cli transaction build \
     --tx-in $PAYMENT_UTXO \
     --tx-in $USER_TOKEN_UTXO \
     --tx-in $VESTED_UTXO \
-    --tx-in-script-file assets/parameterized-vesting.plutus \
+    --tx-in-script-file assets/vesting/$(cat $USER_POLICY_ID)-$USER_TOKEN_NAME.plutus \
     --tx-in-inline-datum-present \
-    --tx-in-redeemer-file assets/unit.json \
+    --tx-in-redeemer-file assets/json/unit.json \
     --tx-in-collateral $COLLATERAL \
     --tx-out "$BENEFICIARY_ADDR + $COST" \
     --tx-out "$USER_ADDRESS + $AMOUNT_LOVELACE + 1 $(cat $USER_POLICY_ID).$USER_TOKEN_NAME" \
