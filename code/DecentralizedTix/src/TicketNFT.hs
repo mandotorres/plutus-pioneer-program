@@ -19,19 +19,25 @@ import           Plutus.V2.Ledger.Contexts  (valueSpent)
 import qualified PlutusTx
 import           PlutusTx.Builtins.Internal (BuiltinByteString (BuiltinByteString))
 import           PlutusTx.Prelude           (any, Bool (False), Eq ((==)), fst, snd,
-                                             traceIfFalse, ($), (&&), (||), Ord ((>)))
+                                             traceIfFalse, ($), (&&), Ord ((>)))
+import qualified Prelude
 import           Prelude                    (Integer, IO, Show (show), String)
 import           Text.Printf                (printf)
 import           Utilities                  (bytesToHex, currencySymbol,
                                              wrapPolicy, writePolicyToFile)
 
+data MintAction = Mint | Burn deriving (Prelude.Eq, Prelude.Ord, Prelude.Show)
+PlutusTx.unstableMakeIsData ''MintAction -- Use TH to create an instance for IsData.
+
 {-# INLINABLE mkNFTPolicy #-}
-mkNFTPolicy :: Integer -> AssetClass -> TxOutRef -> TokenName -> () -> ScriptContext -> Bool
-mkNFTPolicy seat ac oref tn () ctx = traceIfFalse "missing ticket creator nft" hasUserToken      &&
-                             (traceIfFalse "UTxO not consumed"   hasUTxO                    &&
-                             traceIfFalse "missing seat number" (hasSeat seat)              &&
-                             traceIfFalse "wrong amount minted" (checkMintedAmount 1))      ||
-                             traceIfFalse "wrong amount burned" (checkMintedAmount (-1))
+mkNFTPolicy :: Integer -> AssetClass -> TxOutRef -> TokenName -> MintAction -> ScriptContext -> Bool
+mkNFTPolicy seat ac oref tn action ctx = 
+  traceIfFalse "missing event nft" hasUserToken                           &&
+  (case action of
+    Mint -> traceIfFalse "UTxO not consumed"   hasUTxO                    &&
+            traceIfFalse "missing seat number" (hasSeat seat)             &&
+            traceIfFalse "wrong amount minted" (checkMintedAmount 1)
+    Burn -> traceIfFalse "wrong amount burned" (checkMintedAmount (-1)))
 
   where
     info :: TxInfo
@@ -81,9 +87,9 @@ nftPolicy seat ac oref tn = mkMintingPolicyScript $
 ---------------------------------------------------------------------------------------------------
 ------------------------------------- HELPER FUNCTIONS --------------------------------------------
 
-saveNFTPolicy :: Integer ->AssetClass -> TxOutRef -> TokenName -> IO ()
+saveNFTPolicy :: Integer -> AssetClass -> TxOutRef -> TokenName -> IO ()
 saveNFTPolicy seat ac oref tn = writePolicyToFile
-  (printf "assets/ticket-nft-%s-%s-%s-%s#%d-%s.plutus"
+  (printf "assets/ticket/%s-%s-%s-%s#%d-%s.plutus"
     (show seat)
     (show (fst (unAssetClass ac)))
     (tokenName (snd (unAssetClass ac)))
