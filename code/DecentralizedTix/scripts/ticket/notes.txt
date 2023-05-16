@@ -5,22 +5,39 @@
 import Plutus.V1.Ledger.Value
 
 # create ticket plutus file
-saveNFTPolicy 1 (assetClass "47bfc748891f37b9d47cdbb8ff0ddf73df70f4a5ea22417a19ddc46a" "Event") (TxOutRef "dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2" 0) "Ticket"
+saveNFTPolicy 1 (assetClass "9eb68eebcd581173be67061f783231d8703c0dc9c3597abf3c28a42b" "Event") (TxOutRef "a7c8ff8bcd808cf6ccbd90ab0ccb3ede9edc11dc1928fa719908f7a4bbb7e928" 1) "Ticket"
 
 # mint ticket
 scripts/ticket/mint.sh \
-  company \
-  dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2#0 \
-  f8d4d6b984a1b348bbb198b6a25eceeded9b516fc50b676b7912c5582ba73534#0 \
-  c617dc89b02c07eb5fe8c76405094ed98dbea9969938fe7085992fcb0a025108#1 \
-  2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0 \
-  1681245690
+  decentralized-tix \
+  b2cff6052079401029b0dfe222944de2c713f7935e7d041ee056b66a2e4891f2#2 \
+  b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e#1 \
+  b2cff6052079401029b0dfe222944de2c713f7935e7d041ee056b66a2e4891f2#1 \
+  2a6cdaeccfb529959858048efb0f7230beda3a928d929112f2baf5a59b89e6d8#1 \
+  "Taylor Swift" \
+  1683453600000 \
+  1
+
+# mint ticket 2
+scripts/ticket/mint.sh \
+  decentralized-tix \
+  c18a7b9d8ebffcafb744791799dd1cf6a83c6635d0e2136efa70c83aef14cca1#2 \
+  b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e#1 \
+  c18a7b9d8ebffcafb744791799dd1cf6a83c6635d0e2136efa70c83aef14cca1#1 \
+  2a6cdaeccfb529959858048efb0f7230beda3a928d929112f2baf5a59b89e6d8#1 \
+  "Taylor Swift" \
+  1683453600000 \
+  2
 
 # burn ticket
 scripts/ticket/burn.sh \
-  user2 \
-  3aff9d0e9cdc27ca012974694ca0b56241ff0a0ea23d62710f051fd3bedd5715#3 \
-  3aff9d0e9cdc27ca012974694ca0b56241ff0a0ea23d62710f051fd3bedd5715#2 \
-  e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1 \
-  dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2#0 \
-  2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0
+  decentralized-tix \
+  faddbde4c43690fa04967b38e80de0e57ccf7e54f580470da299177a1cde4efa#2 \
+  faddbde4c43690fa04967b38e80de0e57ccf7e54f580470da299177a1cde4efa#0 \
+  b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e#1 \
+  faddbde4c43690fa04967b38e80de0e57ccf7e54f580470da299177a1cde4efa#1 \
+  a7c8ff8bcd808cf6ccbd90ab0ccb3ede9edc11dc1928fa719908f7a4bbb7e928#1 \
+  2a6cdaeccfb529959858048efb0f7230beda3a928d929112f2baf5a59b89e6d8#1 \
+  "Taylor Swift" \
+  1683453600000 \
+  1

@@ -1,10 +1,10 @@
 # create event nft plutus file
-saveNFTPolicy "Taylor Swift" 1683453600000 "0c0a582ed7626ef6df14d295c7bbdf225c123b3916fa97ccd5d4761d" (TxOutRef "b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e" 0) "Event"
+saveNFTPolicy "Taylor Swift" 1683453600000 "0c0a582ed7626ef6df14d295c7bbdf225c123b3916fa97ccd5d4761d" (TxOutRef "2a6cdaeccfb529959858048efb0f7230beda3a928d929112f2baf5a59b89e6d8" 1) "Event"
 
 # mint event
 scripts/event/mint.sh \
   decentralized-tix \
-  a06d46e6bea9bc5a0b499e5a83d585aa1d1875d8d242b9dcfffb535131272c04#1 \
+  2a6cdaeccfb529959858048efb0f7230beda3a928d929112f2baf5a59b89e6d8#1 \
   b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e#1 \
   "Taylor Swift" \
   1683453600000
