@@ -6,34 +6,38 @@ PAYMENT_UTXO=$2
 COLLATERAL=$3
 EVENT_NFT_UTXO=$4
 EVENT_MINT_UTXO=$5
-DEADLINE=$6
+ARTIST=$6
+START_TIME=$7
+SEAT=$8
 
 
 ADA="2"
 AMOUNT_LOVELACE=$(($ADA*1000000))
+ARTIST_NAME=$(echo -n $ARTIST | xxd -ps | tr -d '\n')
 COMPANY_PKH=$(cat keys/company.pkh)
+EVENT_TOKEN_NAME=$(echo -n "Event" | xxd -ps | tr -d '\n')
 # INCORRECT_SIGNING_KEY="keys/user2.skey"
 NETWORK="--testnet-magic 2"
+REDEEMER="assets/json/mint.json"
+TICKET_TOKEN_NAME=$(echo -n "Ticket" | xxd -ps | tr -d '\n')
 USER_ADDR=$(cat keys/$USER.addr)
 USER_PKH=$(cat keys/$USER.pkh)
 USER_SIGNING_KEY="keys/$USER.skey"
-EVENT_TOKEN_NAME=$(echo -n "Event" | xxd -ps | tr -d '\n')
-TICKET_TOKEN_NAME=$(echo -n "Ticket" | xxd -ps | tr -d '\n')
-UNIT_JSON="assets/unit.json"
 
 # file outputs
-EVENT_POLICY_ID=$(cat "policy/event-nft-$COMPANY_PKH-$EVENT_MINT_UTXO-$EVENT_TOKEN_NAME")
-PARAMS_STRING="$EVENT_POLICY_ID-$EVENT_TOKEN_NAME-$PAYMENT_UTXO-$TICKET_TOKEN_NAME"
-MINT_SCRIPT="assets/ticket-nft-$PARAMS_STRING.plutus"
-TICKET_POLICY_ID="policy/ticket-nft-$PARAMS_STRING"
+EVENT_POLICY_ID=$(cat "policy/event/$ARTIST_NAME-$START_TIME-$EVENT_MINT_UTXO-$EVENT_TOKEN_NAME")
+PARAMS_STRING="$SEAT-$EVENT_POLICY_ID-$EVENT_TOKEN_NAME-$PAYMENT_UTXO-$TICKET_TOKEN_NAME"
+MINT_SCRIPT="assets/ticket/$PARAMS_STRING.plutus"
 PROTOCOL_PARAMS="assets/protocol.params"
-SIGNED_OUTPUT="assets/ticket-mint-tx-$PARAMS_STRING.signed"
-UNSIGNED_OUTPUT="assets/ticket-mint-tx-$PARAMS_STRING.raw"
-USER_POLICY_ID=$(cat "policy/user-$COMPANY_PKH")
+SIGNED_OUTPUT="assets/ticket/mint-tx-$PARAMS_STRING.signed"
+TICKET_POLICY_ID="policy/ticket/$PARAMS_STRING"
+UNSIGNED_OUTPUT="assets/ticket/mint-tx-$PARAMS_STRING.raw"
+
+USER_POLICY_ID=$(cat "policy/user/$COMPANY_PKH")
 USER_TOKEN_NAME=$(echo -n "User" | xxd -ps | tr -d '\n')
 
-SCRIPT_PARAMS_STRING="$USER_POLICY_ID-$USER_TOKEN_NAME-$COMPANY_PKH-$DEADLINE"
-SCRIPT_ADDR="assets/gift-$SCRIPT_PARAMS_STRING.addr"
+SCRIPT_PARAMS_STRING="$USER_POLICY_ID-$USER_TOKEN_NAME"
+SCRIPT_ADDR="assets/vesting/$SCRIPT_PARAMS_STRING.addr"
 
 # generate protocol params every time the script is run
 cardano-cli query protocol-parameters $NETWORK --out-file $PROTOCOL_PARAMS
@@ -42,6 +46,12 @@ echo -e "\nprotocol params file $PROTOCOL_PARAMS created\n"
 if [ ! -d "policy" ]; then
     mkdir policy
 fi
+
+# Build gift address 
+cardano-cli address build \
+  --payment-script-file assets/vesting/$SCRIPT_PARAMS_STRING.plutus \
+  --testnet-magic 2 \
+  --out-file $SCRIPT_ADDR
 
 # generate policy id every time the script is run
 cardano-cli transaction policyid --script-file $MINT_SCRIPT > $TICKET_POLICY_ID
@@ -55,12 +65,12 @@ cardano-cli transaction build \
   --required-signer-hash $USER_PKH \
   --tx-in-collateral $COLLATERAL \
   --tx-out "$(cat $SCRIPT_ADDR)+$AMOUNT_LOVELACE + 1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
-  --tx-out-inline-datum-file "assets/unit.json" \
+  --tx-out-inline-datum-file "assets/json/purchase.json" \
   --tx-out "$USER_ADDR+$AMOUNT_LOVELACE + 1 $EVENT_POLICY_ID.$EVENT_TOKEN_NAME" \
   --change-address $USER_ADDR \
   --mint "1 $(cat $TICKET_POLICY_ID).$TICKET_TOKEN_NAME" \
   --mint-script-file $MINT_SCRIPT \
-  --mint-redeemer-file $UNIT_JSON \
+  --mint-redeemer-file $REDEEMER \
   --protocol-params-file $PROTOCOL_PARAMS \
   --witness-override 2 \
   --out-file $UNSIGNED_OUTPUT
