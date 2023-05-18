@@ -1,5 +1,5 @@
 # create user plutus file
-saveVal (assetClass "170e169de9dc68629af74abdec8cb391377ff7a8034ff23ac5f6793d" "User") (VestingParams "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" 1681245690)
+saveVal (assetClass "170e169de9dc68629af74abdec8cb391377ff7a8034ff23ac5f6793d" "User")
 
 # send funds to script
 scripts/vesting/give.sh \
