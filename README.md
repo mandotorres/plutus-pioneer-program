@@ -9,12 +9,9 @@ The company [mint](#mint-event-nft)s an event NFT.
 
 The event NFT allows the holder to mint tickets for a particular event. 
 
-Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address. To [purchase](#purchase-ticket-nft-from-script-address) a ticket NFT, the following conditions must be met: 
-1. the transaction must include a user token, 
-2. the ticket sale date is in the past, and 
-3. the ticket price must be paid to the company
+Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address. Tickets can only be [purchase](#purchase-ticket-nft-from-script-address)d by user token holders.
 
-A user token is [mint](#mint-user-token)ed upon user account creation. The user token is required to purchase tickets. 
+A user token is [mint](#mint-user-token)ed upon user account creation. 
 
 ---
 
@@ -68,7 +65,7 @@ script: scripts/user/burn.sh
 params:
   USER=$1            # who's paying for tx?
   PAYMENT_UTXO=$2    # how are they paying?
-  NFT_UTXO=$3        # utxo to consume (contains NFT)
+  NFT_UTXO=$3        # utxo to consume (contains user token)
   COLLATERAL=$4      # collateral utxo
 ```
 
@@ -98,7 +95,7 @@ Notes:
 
 > **startTime**: event start time
 
-> **pkh**: pubKeyHash required to mint/burn the event NFT, in this case...the company's pubKeyHash
+> **pkh**: company's pubKeyHash is required to mint/burn the event NFT
 
 > **oref**: utxo to consume
 
@@ -109,14 +106,14 @@ root@cd18371d4d13:/workspace/code/DecentralizedTix# cabal repl
 Prelude Main>:l TicketCreatorNFT
 Prelude TicketCreatorNFT>:set -XOverloadedStrings
 Prelude TicketCreatorNFT>import Plutus.V2.Ledger.Api
-Prelude TicketCreatorNFT>saveNFTPolicy "Taylor Swift" 1683453600000 "0c0a582ed7626ef6df14d295c7bbdf225c123b3916fa97ccd5d4761d" (TxOutRef "a06d46e6bea9bc5a0b499e5a83d585aa1d1875d8d242b9dcfffb535131272c04" 1) "Event"
+Prelude Plutus.V2.Ledger.Api TicketCreatorNFT>saveNFTPolicy "Taylor Swift" 1683453600000 "0c0a582ed7626ef6df14d295c7bbdf225c123b3916fa97ccd5d4761d" (TxOutRef "a06d46e6bea9bc5a0b499e5a83d585aa1d1875d8d242b9dcfffb535131272c04" 1) "Event"
 ```
 #### Mint event NFT
 ![Mint event NFT diagram](docs/resources/event/mint-nft.png)
 
 ##### API
 ```
-script: scripts/script: scripts/event/mint.sh
+script: scripts/event/mint.sh
 params: 
   USER=$1            # who's paying for tx?
   PAYMENT_UTXO=$2    # how are they paying?
@@ -144,7 +141,7 @@ script: scripts/event/burn.sh
 params:
   USER=$1            # who's paying for tx?
   PAYMENT_UTXO=$2    # how are they paying?
-  NFT_UTXO=$3        # utxo to consume (contains NFT)
+  NFT_UTXO=$3        # utxo to consume (contains event NFT)
   COLLATERAL=$4      # collateral utxo
   MINT_UTXO=$5       # utxo used in event minting process
   ARTIST=$6          # artist
@@ -170,11 +167,13 @@ root@cd18371d4d13:scripts/event/burn.sh \
 #### Generate ticket NFT Plutus file
 
 ```haskell
---               ac            oref       tn
-saveNFTPolicy :: AssetClass -> TxOutRef -> TokenName -> IO ()
+--               seat       ac            oref        tn
+saveNFTPolicy :: Integer -> AssetClass -> TxOutRef -> TokenName -> IO ()
 ```
 
 Notes:
+
+> **seat**: seat number
 
 > **ac**: asset class permitted to mint ticket NFT
 > - event NFT asset class
@@ -182,13 +181,13 @@ Notes:
 > **oref**: utxo to consume
 
 > **tn**: ticket token name
-
 ```
 root@cd18371d4d13:/workspace/code/DecentralizedTix# cabal repl
-Prelude Main>:l TicketNFT
-Prelude TicketNFT>:set -XOverloadedStrings
-Prelude TicketNFT>import Plutus.V2.Ledger.Api
-Prelude TicketNFT>saveNFTPolicy (assetClass "47bfc748891f37b9d47cdbb8ff0ddf73df70f4a5ea22417a19ddc46a" "Event") (TxOutRef "dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2" 0) "Ticket"
+Prelude Main> :l TicketNFT
+Prelude TicketNFT> :set -XOverloadedStrings
+Prelude TicketNFT> import Plutus.V1.Ledger.Value 
+Prelude Plutus.V1.Ledger.Value TicketNFT> import Plutus.V2.Ledger.Api
+Prelude Plutus.V1.Ledger.Value Plutus.V2.Ledger.Api TicketNFT> saveNFTPolicy 1 (assetClass "9eb68eebcd581173be67061f783231d8703c0dc9c3597abf3c28a42b" "Event") (TxOutRef "a7c8ff8bcd808cf6ccbd90ab0ccb3ede9edc11dc1928fa719908f7a4bbb7e928" 1) "Ticket"
 ```
 #### Mint ticket NFT
 ![Mint ticket NFT diagram](docs/resources/ticket/mint-nft.png)
@@ -197,23 +196,27 @@ Prelude TicketNFT>saveNFTPolicy (assetClass "47bfc748891f37b9d47cdbb8ff0ddf73df7
 ```
 script: scripts/ticket/mint.sh
 params: 
-  USER=$1            # who's paying for tx?
-  PAYMENT_UTXO=$2    # how are they paying?
-  COLLATERAL=$3      # collateral utxo
-  EVENT_NFT_UTXO=$4     # utxo to consume (contains event NFT)
+  USER=$1               # who's paying for tx?
+  PAYMENT_UTXO=$2       # how are they paying?
+  COLLATERAL=$3         # collateral utxo
+  EVENT_NFT_UTXO=$4     # utxo containing event NFT
   EVENT_MINT_UTXO=$5    # utxo used in event minting process
-  DEADLINE=$6        # date ticket is available for purchase
+  ARTIST=$6             # artist
+  START_TIME=$7         # start time
+  SEAT=$8               # seat number
 ```
 
 ##### Example
 ```
 root@cd18371d4d13:scripts/ticket/mint.sh \
->   company \
->   dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2#0 \
->   f8d4d6b984a1b348bbb198b6a25eceeded9b516fc50b676b7912c5582ba73534#0 \
->   c617dc89b02c07eb5fe8c76405094ed98dbea9969938fe7085992fcb0a025108#1 \
->   2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0 \
->   1681245690
+>   decentralized-tix \
+>   b2cff6052079401029b0dfe222944de2c713f7935e7d041ee056b66a2e4891f2#2 \
+>   b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e#1 \
+>   b2cff6052079401029b0dfe222944de2c713f7935e7d041ee056b66a2e4891f2#1 \
+>   2a6cdaeccfb529959858048efb0f7230beda3a928d929112f2baf5a59b89e6d8#1 \
+>   "Taylor Swift" \
+>   1683453600000 \
+>   1
 ```
 #### Burn ticket NFT
 ![Burn ticket NFT diagram](docs/resources/ticket/burn-nft.png)
@@ -222,23 +225,31 @@ root@cd18371d4d13:scripts/ticket/mint.sh \
 ```
 script: scripts/ticket/burn.sh
 params: 
-  USER=$1            # who's paying for tx?
-  PAYMENT_UTXO=$2    # how are they paying?
-  COLLATERAL=$3      # collateral utxo
-  EVENT_NFT_UTXO=$4     # utxo to consume (contains event NFT)
-  EVENT_MINT_UTXO=$5    # utxo used in event minting process
-  DEADLINE=$6        # date ticket is available for purchase
+  USER=$1               # who's paying for tx?
+  PAYMENT_UTXO=$2       # how are they paying?
+  NFT_UTXO=$3           # utxo to consume (contains ticket NFT)
+  COLLATERAL=$4         # collateral utxo
+  EVENT_NFT_UTXO=$5     # utxo to consume (contains event NFT)
+  TICKET_MINT_UTXO=$6   # utxo used in ticket minting process
+  EVENT_MINT_UTXO=$7    # utxo used in event minting process
+  ARTIST=$8             # artist
+  START_TIME=$9         # start time
+  SEAT=${10}            # seat number
 ```
 
 ##### Example
 ```
 root@cd18371d4d13:scripts/ticket/burn.sh \
->   user2 \
->   10dc49f05c02027d346ee7e00c35888f1d89b8d9632a39f6d5ab896576576e0b#2 \
->   10dc49f05c02027d346ee7e00c35888f1d89b8d9632a39f6d5ab896576576e0b#1 \
->   e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1 \
->   c175e76b6f15b0c2e2df10d420ebb1a326bc324638b2f8ef01c381284cb44dff#0 \
->   2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0
+>   decentralized-tix \
+>   faddbde4c43690fa04967b38e80de0e57ccf7e54f580470da299177a1cde4efa#2 \
+>   faddbde4c43690fa04967b38e80de0e57ccf7e54f580470da299177a1cde4efa#0 \
+>   b005e6b2af2ca57ae5a7ea74cbc96c8e9986100a45e92fe77a82f5f0c008a51e#1 \
+>   faddbde4c43690fa04967b38e80de0e57ccf7e54f580470da299177a1cde4efa#1 \
+>   a7c8ff8bcd808cf6ccbd90ab0ccb3ede9edc11dc1928fa719908f7a4bbb7e928#1 \
+>   2a6cdaeccfb529959858048efb0f7230beda3a928d929112f2baf5a59b89e6d8#1 \
+>   "Taylor Swift" \
+>   1683453600000 \
+>   1
 ```
 
 ---
@@ -249,33 +260,20 @@ root@cd18371d4d13:scripts/ticket/burn.sh \
 
 ##### Generate vesting Plutus file
 ```haskell
---         ac            params
-saveVal :: AssetClass -> VestingParams -> IO ()
+--         ac
+saveVal :: AssetClass -> IO ()
 ```
 
 Notes:
 
 > **ac**: asset class required to purchase ticket NFT,
 > - user token asset class
-
-```haskell
-data VestingParams = VestingParams
-  { beneficiary :: PubKeyHash
-  , deadline    :: POSIXTime
-  }
-```
-
-> **beneficiary**: the beneficiary's pubKeyHash
-> - company pubKeyHash
-
-> **deadline**: the posix time when the ticket becomes available
-
 ```
 root@cd18371d4d13:/workspace/code/DecentralizedTix# cabal repl
-Prelude Main>:l Vesting
-Prelude Vesting>:set -XOverloadedStrings
-Prelude Vesting>import Plutus.V2.Ledger.Api
-Prelude Vesting>saveVal (assetClass "170e169de9dc68629af74abdec8cb391377ff7a8034ff23ac5f6793d" "User") (VestingParams "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9" 1681245690)
+Prelude Main>:l ParameterizedVesting
+Prelude ParameterizedVesting>:set -XOverloadedStrings
+Prelude ParameterizedVesting>import Plutus.V2.Ledger.Api
+Prelude ParameterizedVesting>saveVal (assetClass "170e169de9dc68629af74abdec8cb391377ff7a8034ff23ac5f6793d" "User")
 ```
 
 ##### Purchase ticket NFT from script address
@@ -285,25 +283,35 @@ Prelude Vesting>saveVal (assetClass "170e169de9dc68629af74abdec8cb391377ff7a8034
 ```
 script: scripts/vesting/purchase.sh
 params:
-  USER=$1            # who's paying for tx?
-  PAYMENT_UTXO=$2    # how are they paying?
-  TICKET_NFT_UTXO    # utxo used in ticket minting process
-  EVENT_MINT_UTXO=$4    # utxo used in event minting process
-  DEADLINE=$5        # date ticket is available for purchase
+  USER=$1               # who's paying for tx?
+  PAYMENT_UTXO=$2       # how are they paying?
+  VESTED_UTXO=$3        # utxo containing ticket NFT
+  USER_TOKEN_UTXO=$4    # utxo containing user token
+  COLLATERAL=$5         # collateral utxo
+  SLOT=$6               # current slot
+  TICKET_MINT_UTXO=$7   # utxo used in ticket minting process
+  EVENT_NFT_UTXO=$8     # utxo containing event NFT
+  EVENT_MINT_UTXO=$9    # utxo used in event minting process
+  ARTIST=${10}          # artist
+  START_TIME=${11}      # start time
+  SEAT=${12}            # seat number
 ```
 
 ###### Example
 ```
 root@cd18371d4d13:scripts/vesting/purchase.sh \ 
->   user2 \
->   eeafcf73fedc680df20f3e896ae48b380539d7da297e52f0eb8c9f3beca4ee73#1 \
->   eeafcf73fedc680df20f3e896ae48b380539d7da297e52f0eb8c9f3beca4ee73#0 \
->   b1059558a3afacd1befc22dd8ab855d4b974fdccab916f07cd375a7147877642#1 \
->   e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1 \
+>   user3 \
+>   c42cd4d69e9322628bcb52ba63d1ba1c03e04e61b1e7728278ec82e3e73e1286#1 \
+>   c42cd4d69e9322628bcb52ba63d1ba1c03e04e61b1e7728278ec82e3e73e1286#0 \
+>   566c4c9746e6fbb221f48632e010c0ab6aa5a39e320ce9493df54a8dbf4bb087#1 \
+>   a1680b604dd117569626c60a3fcd8842a736777bc1da820088b0d87012106198#1 \
 >   14679465 \
->   dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2#0 \
->   2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0 \
->   1681245690
+>   b2cff6052079401029b0dfe222944de2c713f7935e7d041ee056b66a2e4891f2#2 \
+>   c18a7b9d8ebffcafb744791799dd1cf6a83c6635d0e2136efa70c83aef14cca1#1 \
+>   2a6cdaeccfb529959858048efb0f7230beda3a928d929112f2baf5a59b89e6d8#1 \
+>   "Taylor Swift" \
+>   1683453600000 \
+>   1
 ```
 
 ##### Send ticket NFT to script address
@@ -314,23 +322,27 @@ Utility function: moves the ticket NFT from user wallet to script address.
 ```
 script: scripts/vesting/give.sh
 params:
-  USER=$1              # who's paying for tx?
-  PAYMENT_UTXO=$2      # how are they paying?
-  TICKET_NFT_UTXO=$3   # utxo to consume (contains user token)
-  EVENT_NFT_UTXO=$4    # utxo used in ticket minting process
-  EVENT_MINT_UTXO=$5   # utxo used in event minting process
-  DEADLINE=$6          # date ticket is available for purchase
+  USER=$1               # who's paying for tx?
+  PAYMENT_UTXO=$2       # how are they paying?
+  TICKET_NFT_UTXO=$3    # utxo containing user token
+  EVENT_NFT_UTXO=$4     # utxo containing event NFT
+  EVENT_MINT_UTXO=$5    # utxo used in event minting process
+  ARTIST=$6             # artist
+  START_TIME=$7         # start time
+  SEAT=$8               # seat number
 ```
 
 ###### Example
 ```
 root@cd18371d4d13:scripts/vesting/give.sh \  
->   user2 \
->   0c22bd4c5784398c07f74aeb92f0a4a34788a9e090d96686c20166c11c4cee90#3 \
->   0c22bd4c5784398c07f74aeb92f0a4a34788a9e090d96686c20166c11c4cee90#2 \
->   dba94941278a873efd7ea4ed3855e5a21118050923e011917d71e64ddc8bdaa2#0 \
->   2712f66819ac7f52683ee7e97e6878263dfaa42c85dde8ed23097ce461d5ab85#0 \
->   1681245690
+>   user3 \
+>   b529d5c5ecaf5bef43167d9d752e1003c93adcbddfdbfbb5679c98cf5fe2c578#1 \
+>   b11def2be91eb1e34c8ff6745245cf77be4036c3d349b01908a15c2d07134586#2 \
+>   b2cff6052079401029b0dfe222944de2c713f7935e7d041ee056b66a2e4891f2#2 \
+>   2a6cdaeccfb529959858048efb0f7230beda3a928d929112f2baf5a59b89e6d8#1 \
+>   "Taylor Swift" \
+>   1683453600000 \
+>   1
 ```
 
 ---
