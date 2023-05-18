@@ -7,7 +7,6 @@
 
 module ParameterizedVesting where
 
-import           Data.Maybe                (fromJust)
 import qualified Data.ByteString.Char8      as BS8
 import           Plutus.V1.Ledger.Interval  (contains)
 import           Plutus.V1.Ledger.Value     (AssetClass, assetClass, assetClassValueOf, unAssetClass)
@@ -21,10 +20,10 @@ import           PlutusTx                   (applyCode, compile, liftCode
                                            , unstableMakeIsData)
 import           PlutusTx.Builtins.Internal (BuiltinByteString (BuiltinByteString))
 import           PlutusTx.Prelude           (Bool, fst, snd, traceIfFalse, ($), (&&), (==), (<=))
-import           Prelude                    (IO, Show (show), String, Integer)
+import           Prelude                    (IO, Show (show), String, Integer, FilePath)
 import           Text.Printf                (printf)
-import           Utilities                  (bytesToHex, posixTimeFromIso8601, printDataToJSON
-                                           , wrapValidator, writeValidatorToFile)
+import           Utilities                  (bytesToHex, printDataToJSON
+                                           , wrapValidator, writeDataToFile, writeValidatorToFile)
 
 ---------------------------------------------------------------------------------------------------
 ----------------------------------- ON-CHAIN / VALIDATOR ------------------------------------------
@@ -71,7 +70,7 @@ validator ac = mkValidatorScript ($$(compile [|| mkWrappedParameterizedVestingVa
 
 saveVal :: AssetClass -> IO ()
 saveVal ac = writeValidatorToFile
-    (printf "./assets/parameterized-vesting-%s-%s.plutus"
+    (printf "./assets/vesting/%s-%s.plutus"
       (show (fst (unAssetClass ac)))
       tokenName
     ) $
@@ -81,9 +80,16 @@ saveVal ac = writeValidatorToFile
     tokenName = case unTokenName (snd (unAssetClass ac)) of
         (BuiltinByteString bs) -> BS8.unpack $ bytesToHex bs
 
-printVestingDatumJSON :: PubKeyHash -> String -> Integer -> IO ()
+printVestingDatumJSON :: PubKeyHash -> POSIXTime -> Integer -> IO ()
 printVestingDatumJSON pkh time cost = printDataToJSON $ VestingDatum
     { beneficiary      = pkh
-    , dateAvailable    = fromJust $ posixTimeFromIso8601 time
+    , dateAvailable    = time
+    , price            = cost
+    }
+
+writeVestingDatumToFile :: FilePath -> PubKeyHash -> POSIXTime -> Integer -> IO ()
+writeVestingDatumToFile filepath pkh time cost = writeDataToFile filepath $ VestingDatum
+    { beneficiary      = pkh
+    , dateAvailable    = time
     , price            = cost
     }

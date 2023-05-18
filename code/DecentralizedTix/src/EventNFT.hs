@@ -35,7 +35,6 @@ import PlutusTx.Builtins (equalsByteString, emptyByteString)
 
 
 data MintAction = Mint | Burn deriving (Prelude.Eq, Prelude.Ord, Prelude.Show)
-
 PlutusTx.unstableMakeIsData ''MintAction -- Use TH to create an instance for IsData.
 
 {-# INLINABLE mkNFTPolicy #-}
