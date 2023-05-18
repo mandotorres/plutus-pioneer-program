@@ -17,14 +17,14 @@ NETWORK="--testnet-magic 2"
 USER_ADDR=$(cat keys/$USER.addr)
 USER_SIGNING_KEY="keys/$USER.skey"
 TOKEN_NAME=$(echo -n "User" | xxd -ps | tr -d '\n')
-UNIT_JSON="assets/unit.json"
+UNIT_JSON="assets/json/unit.json"
 
 # file outputs
-MINT_SCRIPT="assets/user-$COMPANY_PKH.plutus"
-POLICY_ID="policy/user-$COMPANY_PKH"
+MINT_SCRIPT="assets/user/$COMPANY_PKH.plutus"
+POLICY_ID="policy/user/$COMPANY_PKH"
 PROTOCOL_PARAMS="assets/protocol.params"
-SIGNED_OUTPUT="assets/user-burn-tx-$COMPANY_PKH.signed"
-UNSIGNED_OUTPUT="assets/user-burn-tx-$COMPANY_PKH.raw"
+SIGNED_OUTPUT="assets/user/burn-tx-$COMPANY_PKH.signed"
+UNSIGNED_OUTPUT="assets/user/burn-tx-$COMPANY_PKH.raw"
 
 cardano-cli transaction build \
   --babbage-era \
