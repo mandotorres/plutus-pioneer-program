@@ -5,13 +5,13 @@ Decentalized Tix is a prototype for an event ticketing system using the blockcha
 
 ## User Flow Process
 ![User Flow diagram](docs/resources/user-flow-diagram.jpg)
-The company [mint](#mint-event-nft)s an event NFT. 
+1. The company [mint](#mint-event-nft)s an event NFT. 
 
-The event NFT allows the holder to mint tickets for a particular event. 
+2. The event NFT allows the holder to mint tickets for a particular event. 
+3. Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address.
+4. Tickets can only be [purchase](#purchase-ticket-nft-from-script-address)d by user token holders.
 
-Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address. Tickets can only be [purchase](#purchase-ticket-nft-from-script-address)d by user token holders.
-
-A user token is [mint](#mint-user-token)ed upon user account creation. 
+5. A user token is [mint](#mint-user-token)ed upon user account creation. 
 
 ---
 
