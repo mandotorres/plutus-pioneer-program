@@ -6,77 +6,9 @@ Decentalized Tix is a prototype for an event ticketing system using the blockcha
 ## User Flow Process
 ![User Flow diagram](docs/resources/user-flow-diagram.jpg)
 1. The company [mint](#mint-event-nft)s an event NFT. 
-
-2. The event NFT allows the holder to mint tickets for a particular event. 
-3. Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address.
-4. Tickets can only be [purchase](#purchase-ticket-nft-from-script-address)d by user token holders.
-
-5. A user token is [mint](#mint-user-token)ed upon user account creation. 
-
----
-
-### Policies
-
-#### Generate user token Plutus file
-
-```haskell
---                pkh
-saveUserPolicy :: PubKeyHash -> IO ()
-```
-
-Notes
-
-> **pkh**: pubKeyHash required to mint/burn the user token, 
-> - company pubKeyHash
-
-```bash
-root@cd18371d4d13:/workspace/code/DecentralizedTix# cabal repl
-Prelude Main>:l User
-Prelude User>:set -XOverloadedStrings
-Prelude User>saveUserPolicy "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9"
-```
-
-#### Mint user token
-![Mint user token diagram](docs/resources/user/mint-token.png)
-
-##### API
-```
-script: scripts/user/mint.sh
-params: 
-  USER=$1            # who's paying for tx?
-  PAYMENT_UTXO=$2    # how are they paying?
-  COLLATERAL=$3      # collateral utxo
-```
-
-##### Example
-```
-root@cd18371d4d13:scripts/user/mint.sh \    
->   user2 \
->   6595da6ca09de972f8d79ccee73a17bdd186e37f5d7005c9d23b57be0996a80c#1 \
->   e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1
-```
-
-#### Burn user token
-![Burn user token diagram](docs/resources/user/burn-token.png)
-
-##### API
-```
-script: scripts/user/burn.sh
-params:
-  USER=$1            # who's paying for tx?
-  PAYMENT_UTXO=$2    # how are they paying?
-  NFT_UTXO=$3        # utxo to consume (contains user token)
-  COLLATERAL=$4      # collateral utxo
-```
-
-##### Example
-```
-root@cd18371d4d13:scripts/user/burn.sh \
->   user2 \
->   5824420e21b91cf0c015a37678eacf9137494580defc9b604c8aec334ffb4bc5#1 \
->   5824420e21b91cf0c015a37678eacf9137494580defc9b604c8aec334ffb4bc5#0 \
->   e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1
-```
+2. The event NFT allows the holder to mint tickets for a particular event. Once a ticket is [mint](#mint-ticket-nft)ed, the ticket is sent to a vesting script address.
+3. A user token is [mint](#mint-user-token)ed, upon user account creation. 
+4. Tickets may be [purchase](#purchase-ticket-nft-from-script-address)d by user token holders.
 
 ---
 
@@ -254,7 +186,72 @@ root@cd18371d4d13:scripts/ticket/burn.sh \
 
 ---
 
-### Smart Contract
+### User Token
+
+#### Generate user token Plutus file
+
+```haskell
+--                pkh
+saveUserPolicy :: PubKeyHash -> IO ()
+```
+
+Notes
+
+> **pkh**: pubKeyHash required to mint/burn the user token, 
+> - company pubKeyHash
+
+```bash
+root@cd18371d4d13:/workspace/code/DecentralizedTix# cabal repl
+Prelude Main>:l User
+Prelude User>:set -XOverloadedStrings
+Prelude User>saveUserPolicy "a71860d5e0b35967e9218a49d227cc460a1ee5b2d86f7d6cfb051ba9"
+```
+
+#### Mint user token
+![Mint user token diagram](docs/resources/user/mint-token.png)
+
+##### API
+```
+script: scripts/user/mint.sh
+params: 
+  USER=$1            # who's paying for tx?
+  PAYMENT_UTXO=$2    # how are they paying?
+  COLLATERAL=$3      # collateral utxo
+```
+
+##### Example
+```
+root@cd18371d4d13:scripts/user/mint.sh \    
+>   user2 \
+>   6595da6ca09de972f8d79ccee73a17bdd186e37f5d7005c9d23b57be0996a80c#1 \
+>   e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1
+```
+
+#### Burn user token
+![Burn user token diagram](docs/resources/user/burn-token.png)
+
+##### API
+```
+script: scripts/user/burn.sh
+params:
+  USER=$1            # who's paying for tx?
+  PAYMENT_UTXO=$2    # how are they paying?
+  NFT_UTXO=$3        # utxo to consume (contains user token)
+  COLLATERAL=$4      # collateral utxo
+```
+
+##### Example
+```
+root@cd18371d4d13:scripts/user/burn.sh \
+>   user2 \
+>   5824420e21b91cf0c015a37678eacf9137494580defc9b604c8aec334ffb4bc5#1 \
+>   5824420e21b91cf0c015a37678eacf9137494580defc9b604c8aec334ffb4bc5#0 \
+>   e9c729d97cdbaafd0b410ad6078f6facb3dd93a7a74a3c5e3f1edcc5570acc4b#1
+```
+
+---
+
+### Vesting Smart Contract
 
 #### Vesting
 
